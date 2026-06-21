@@ -1,10 +1,9 @@
 import 'dotenv/config';
 import Redis from 'ioredis';
-import { SECRETS } from './local-secrets.js';
 
-const redisHost = process.env.REDIS_HOST || SECRETS.REDIS_HOST;
-const redisPort = process.env.REDIS_PORT || SECRETS.REDIS_PORT || 6379;
-const redisPassword = process.env.REDIS_PASSWORD || SECRETS.REDIS_PASSWORD;
+const redisHost = process.env.REDIS_HOST;
+const redisPort = process.env.REDIS_PORT || 6379;
+const redisPassword = process.env.REDIS_PASSWORD;
 
 const redisUrl = `redis://:${encodeURIComponent(redisPassword)}@${redisHost}:${redisPort}`;
 const redis = new Redis(redisUrl);
