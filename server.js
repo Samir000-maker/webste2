@@ -34,7 +34,6 @@ import { ObjectId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import 'dotenv/config';
 import config from './config.js';
-import { SECRETS } from './local-secrets.js';
 import { connectDB, getDB } from './database.js';
 import { initializeFirebase, authenticateFirebase, optionalFirebaseAuth, verifyToken } from './firebase-auth.js';
 import admin from 'firebase-admin';
@@ -60,9 +59,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Redis Clients
-const redisHost = process.env.REDIS_HOST || SECRETS.REDIS_HOST;
-const redisPort = process.env.REDIS_PORT || SECRETS.REDIS_PORT;
-const redisPassword = process.env.REDIS_PASSWORD || SECRETS.REDIS_PASSWORD;
+const redisHost = process.env.REDIS_HOST;
+const redisPort = process.env.REDIS_PORT || 16396;
+const redisPassword = process.env.REDIS_PASSWORD;
 
 // Redis connection URL
 // const redisUrl = `redis://:${encodeURIComponent(redisPassword)}@${redisHost}:${redisPort}`;
@@ -2777,8 +2776,8 @@ app.get('/health', async (req, res) => {
       activeRooms,
       webrtcMetrics: webrtcMetrics.getAll(),
       turnConfigured: !!(
-        ((process.env.CLOUDFLARE_TURN_TOKEN_ID || SECRETS.HARDCODED_CLOUDFLARE_TURN_TOKEN_ID) &&
-          (process.env.CLOUDFLARE_TURN_API_TOKEN || SECRETS.HARDCODED_CLOUDFLARE_TURN_API_TOKEN)) ||
+        ((process.env.CLOUDFLARE_TURN_TOKEN_ID || process.env.HARDCODED_CLOUDFLARE_TURN_TOKEN_ID) &&
+          (process.env.CLOUDFLARE_TURN_API_TOKEN || process.env.HARDCODED_CLOUDFLARE_TURN_API_TOKEN)) ||
         ((process.env.TURN_URLS || process.env.TURN_URL) && process.env.TURN_USERNAME && process.env.TURN_CREDENTIAL)
       ),
       server: 'running'
