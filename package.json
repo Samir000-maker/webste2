@@ -1,0 +1,37 @@
+{
+  "name": "mood-app-backend",
+  "version": "1.0.0",
+  "description": "Mood tracking and social chat application backend",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "build": "node scripts/obfuscate.mjs",
+    "build:prod": "NODE_ENV=production node scripts/obfuscate.mjs"
+  },
+  "keywords": [
+    "mood",
+    "chat",
+    "websocket",
+    "firebase",
+    "mongodb"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "@socket.io/redis-adapter": "^8.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "ioredis": "^5.9.2",
+    "mongodb": "^6.3.0",
+    "socket.io": "^4.6.1",
+    "uuid": "^9.0.1",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.2.2",
+    "nodemon": "^3.0.2"
+  }
+}

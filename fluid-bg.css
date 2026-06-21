@@ -1,0 +1,390 @@
+/* ============================================
+   FLUID BACKGROUND ANIMATION LAYER
+   Lava-lamp style, hardware-accelerated,
+   diurnal color spectrum with CSS custom props.
+   ============================================ */
+
+/* ── Diurnal Theme Variables & Global Fixes ── */
+:root {
+  --fluid-bg-color: #0f0c1b;
+  --fluid-blob1: rgba(255, 94, 98, 0.75);
+  --fluid-blob2: rgba(255, 153, 102, 0.75);
+  --fluid-blob3: rgba(184, 109, 255, 0.65);
+  --fluid-blob4: rgba(255, 221, 148, 0.60);
+}
+
+/* ── MORNING THEME (06:00–11:00) ── */
+/* Sunrise rose pink, warm peach, soft morning lavender, soft golden yellow. */
+body.theme-morning {
+  --fluid-bg-color: #0e0818;
+  --fluid-blob1: rgba(255, 94, 98, 0.75);
+  --fluid-blob2: rgba(255, 153, 102, 0.75);
+  --fluid-blob3: rgba(184, 109, 255, 0.65);
+  --fluid-blob4: rgba(255, 221, 148, 0.60);
+}
+body.theme-morning #fluid-bg .fluid-blob--1 { animation: drift-morning-1 4.5s ease-in-out infinite alternate; }
+body.theme-morning #fluid-bg .fluid-blob--2 { animation: drift-morning-2 5s ease-in-out infinite alternate; }
+body.theme-morning #fluid-bg .fluid-blob--3 { animation: drift-morning-3 4.8s ease-in-out infinite alternate; }
+body.theme-morning #fluid-bg .fluid-blob--4 { animation: drift-morning-4 4s ease-in-out infinite alternate; }
+
+/* ── NOON THEME (11:00–15:00) ── */
+/* Vibrant sky blue, bright teal, electric cyan, electric indigo. Energetic swirling. */
+body.theme-noon {
+  --fluid-bg-color: #071520;
+  --fluid-blob1: rgba(14, 165, 233, 0.80);
+  --fluid-blob2: rgba(20, 184, 166, 0.75);
+  --fluid-blob3: rgba(6, 182, 212, 0.75);
+  --fluid-blob4: rgba(99, 102, 241, 0.65);
+}
+body.theme-noon #fluid-bg .fluid-blob--1 { animation: drift-noon-1 2.8s ease-in-out infinite alternate; }
+body.theme-noon #fluid-bg .fluid-blob--2 { animation: drift-noon-2 3.2s ease-in-out infinite alternate; }
+body.theme-noon #fluid-bg .fluid-blob--3 { animation: drift-noon-3 3s ease-in-out infinite alternate; }
+body.theme-noon #fluid-bg .fluid-blob--4 { animation: drift-noon-4 2.5s ease-in-out infinite alternate; }
+
+/* ── AFTERNOON THEME (15:00–18:00) ── */
+/* Sunset orange, neon magenta, amber gold, deep purple. Warm horizontal sweep. */
+body.theme-afternoon {
+  --fluid-bg-color: #150a18;
+  --fluid-blob1: rgba(249, 115, 22, 0.80);
+  --fluid-blob2: rgba(217, 70, 239, 0.75);
+  --fluid-blob3: rgba(245, 158, 11, 0.75);
+  --fluid-blob4: rgba(124, 58, 237, 0.65);
+}
+body.theme-afternoon #fluid-bg .fluid-blob--1 { animation: drift-afternoon-1 3.5s ease-in-out infinite alternate; }
+body.theme-afternoon #fluid-bg .fluid-blob--2 { animation: drift-afternoon-2 4s ease-in-out infinite alternate; }
+body.theme-afternoon #fluid-bg .fluid-blob--3 { animation: drift-afternoon-3 3.8s ease-in-out infinite alternate; }
+body.theme-afternoon #fluid-bg .fluid-blob--4 { animation: drift-afternoon-4 3.2s ease-in-out infinite alternate; }
+
+/* ── EVENING THEME (18:00–21:00) ── */
+/* Calming twilight indigo, twilight purple, deep twilight blue, medium violet. */
+body.theme-evening {
+  --fluid-bg-color: #08071a;
+  --fluid-blob1: rgba(99, 102, 241, 0.80);
+  --fluid-blob2: rgba(139, 92, 246, 0.75);
+  --fluid-blob3: rgba(37, 99, 235, 0.70);
+  --fluid-blob4: rgba(168, 85, 247, 0.65);
+}
+body.theme-evening #fluid-bg .fluid-blob--1 { animation: drift-evening-1 4.2s ease-in-out infinite alternate; }
+body.theme-evening #fluid-bg .fluid-blob--2 { animation: drift-evening-2 4.8s ease-in-out infinite alternate; }
+body.theme-evening #fluid-bg .fluid-blob--3 { animation: drift-evening-3 4.5s ease-in-out infinite alternate; }
+body.theme-evening #fluid-bg .fluid-blob--4 { animation: drift-evening-4 3.8s ease-in-out infinite alternate; }
+
+/* ── NIGHT THEME (21:00–01:00) ── */
+/* Deep velvet blue, neon purple, midnight indigo, amethyst purple. Breathing pulses. */
+body.theme-night {
+  --fluid-bg-color: #03020c;
+  --fluid-blob1: rgba(29, 78, 216, 0.85);
+  --fluid-blob2: rgba(109, 40, 217, 0.75);
+  --fluid-blob3: rgba(30, 58, 138, 0.80);
+  --fluid-blob4: rgba(147, 51, 234, 0.60);
+}
+/* Faster animations for index.html and mood.html to be more dynamic */
+body.theme-night:not(.fluid-bg-chat) #fluid-bg .fluid-blob--1 { animation: drift-night-1 3.5s ease-in-out infinite alternate; }
+body.theme-night:not(.fluid-bg-chat) #fluid-bg .fluid-blob--2 { animation: drift-night-2 3.8s ease-in-out infinite alternate; }
+body.theme-night:not(.fluid-bg-chat) #fluid-bg .fluid-blob--3 { animation: drift-night-3 3.6s ease-in-out infinite alternate; }
+body.theme-night:not(.fluid-bg-chat) #fluid-bg .fluid-blob--4 { animation: drift-night-4 3.2s ease-in-out infinite alternate; }
+/* Original slower speeds for chat.html to maintain non-distracting environmental ambiance */
+body.theme-night.fluid-bg-chat #fluid-bg .fluid-blob--1 { animation: drift-night-1 5s ease-in-out infinite alternate; }
+body.theme-night.fluid-bg-chat #fluid-bg .fluid-blob--2 { animation: drift-night-2 5.5s ease-in-out infinite alternate; }
+body.theme-night.fluid-bg-chat #fluid-bg .fluid-blob--3 { animation: drift-night-3 5.2s ease-in-out infinite alternate; }
+body.theme-night.fluid-bg-chat #fluid-bg .fluid-blob--4 { animation: drift-night-4 4.5s ease-in-out infinite alternate; }
+
+/* ── DEEP NIGHT THEME (01:00–06:00) ── */
+/* Introspective violet, deep slate black, deep dark purple, dark ink. Lo-fi shifts. */
+body.theme-deepnight {
+  --fluid-bg-color: #020205;
+  --fluid-blob1: rgba(48, 15, 90, 0.85);
+  --fluid-blob2: rgba(15, 23, 42, 0.80);
+  --fluid-blob3: rgba(20, 10, 50, 0.75);
+  --fluid-blob4: rgba(10, 10, 20, 0.65);
+}
+/* Faster animations for index.html and mood.html to be more dynamic */
+body.theme-deepnight:not(.fluid-bg-chat) #fluid-bg .fluid-blob--1 { animation: drift-deepnight-1 4.2s ease-in-out infinite alternate; }
+body.theme-deepnight:not(.fluid-bg-chat) #fluid-bg .fluid-blob--2 { animation: drift-deepnight-2 4.8s ease-in-out infinite alternate; }
+body.theme-deepnight:not(.fluid-bg-chat) #fluid-bg .fluid-blob--3 { animation: drift-deepnight-3 4.5s ease-in-out infinite alternate; }
+body.theme-deepnight:not(.fluid-bg-chat) #fluid-bg .fluid-blob--4 { animation: drift-deepnight-4 3.8s ease-in-out infinite alternate; }
+/* Original slower speeds for chat.html to maintain non-distracting environmental ambiance */
+body.theme-deepnight.fluid-bg-chat #fluid-bg .fluid-blob--1 { animation: drift-deepnight-1 6.5s ease-in-out infinite alternate; }
+body.theme-deepnight.fluid-bg-chat #fluid-bg .fluid-blob--2 { animation: drift-deepnight-2 7.2s ease-in-out infinite alternate; }
+body.theme-deepnight.fluid-bg-chat #fluid-bg .fluid-blob--3 { animation: drift-deepnight-3 6.8s ease-in-out infinite alternate; }
+body.theme-deepnight.fluid-bg-chat #fluid-bg .fluid-blob--4 { animation: drift-deepnight-4 5.8s ease-in-out infinite alternate; }
+
+/* ── Force Body Background to Transparent so Fluid Canvas Shows ── */
+body.theme-morning,
+body.theme-noon,
+body.theme-afternoon,
+body.theme-evening,
+body.theme-night,
+body.theme-deepnight {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  transition: all 2000ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+html {
+  background-color: #020205; /* Darkest base fallback */
+}
+
+/* ── Fluid Background Container ── */
+#fluid-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--fluid-bg-color);
+  /* Smooth 2000ms transition for diurnal theme morphing */
+  transition: background-color 2000ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── Blobs Wrapper for Perfect Bleed-free Blur ── */
+.fluid-blobs-wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(45px); /* Reduced from 80px to make shape movements highly visible */
+  -webkit-filter: blur(45px);
+  transform: scale(1.15); /* Eliminates edge pixelation and bleeding */
+  will-change: transform;
+}
+
+/* ── Blob Base Styles ── */
+#fluid-bg .fluid-blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: background 2000ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── Individual Blob Default Layout Sizes ── */
+#fluid-bg .fluid-blob--1 {
+  width: 55vmax;
+  height: 55vmax;
+  background: radial-gradient(circle at 30% 40%, var(--fluid-blob1), transparent 70%);
+  top: -15%;
+  left: -10%;
+}
+
+#fluid-bg .fluid-blob--2 {
+  width: 50vmax;
+  height: 50vmax;
+  background: radial-gradient(circle at 60% 50%, var(--fluid-blob2), transparent 70%);
+  top: 30%;
+  right: -15%;
+}
+
+#fluid-bg .fluid-blob--3 {
+  width: 60vmax;
+  height: 60vmax;
+  background: radial-gradient(circle at 40% 60%, var(--fluid-blob3), transparent 70%);
+  bottom: -20%;
+  left: 20%;
+}
+
+#fluid-bg .fluid-blob--4 {
+  width: 45vmax;
+  height: 45vmax;
+  background: radial-gradient(circle at 50% 50%, var(--fluid-blob4), transparent 70%);
+  top: 50%;
+  left: 55%;
+}
+
+/* ==========================================================================
+   BESPOKE DIURNAL DRIVING KEYFRAMES (HARDWARE-ACCELERATED & HIGH TRAVEL)
+   ========================================================================== */
+
+/* ── Morning Keyframes: Sunrise drift (mostly vertical rise) ── */
+@keyframes drift-morning-1 {
+  0%   { transform: translate3d(0, 15vh, 0) rotate(0deg) scale(0.95); }
+  50%  { transform: translate3d(12vw, -12vh, 0) rotate(45deg) scale(1.10); }
+  100% { transform: translate3d(-12vw, -30vh, 0) rotate(90deg) scale(1); }
+}
+@keyframes drift-morning-2 {
+  0%   { transform: translate3d(0, 20vh, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate3d(-15vw, -6vh, 0) rotate(-60deg) scale(1.15); }
+  100% { transform: translate3d(15vw, -25vh, 0) rotate(-120deg) scale(0.95); }
+}
+@keyframes drift-morning-3 {
+  0%   { transform: translate3d(0, 25vh, 0) rotate(0deg) scale(1.08); }
+  50%  { transform: translate3d(16vw, 0, 0) rotate(40deg) scale(0.92); }
+  100% { transform: translate3d(-16vw, -20vh, 0) rotate(80deg) scale(1.12); }
+}
+@keyframes drift-morning-4 {
+  0%   { transform: translate3d(0, 12vh, 0) rotate(0deg) scale(0.95); }
+  50%  { transform: translate3d(-16vw, -15vh, 0) rotate(-35deg) scale(1.10); }
+  100% { transform: translate3d(16vw, -30vh, 0) rotate(-70deg) scale(1); }
+}
+
+/* ── Noon Keyframes: Swirling high energy (large scale morph & movement) ── */
+@keyframes drift-noon-1 {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  33%  { transform: translate3d(24vw, 18vh, 0) rotate(120deg) scale(1.25); }
+  66%  { transform: translate3d(-18vw, 30vh, 0) rotate(240deg) scale(0.80); }
+  100% { transform: translate3d(12vw, -12vh, 0) rotate(360deg) scale(1.05); }
+}
+@keyframes drift-noon-2 {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  33%  { transform: translate3d(-25vw, -25vh, 0) rotate(-120deg) scale(0.78); }
+  66%  { transform: translate3d(20vw, 12vh, 0) rotate(-240deg) scale(1.20); }
+  100% { transform: translate3d(-15vw, -20vh, 0) rotate(-360deg) scale(1); }
+}
+@keyframes drift-noon-3 {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg) scale(1.05); }
+  33%  { transform: translate3d(30vw, -18vh, 0) rotate(90deg) scale(0.85); }
+  66%  { transform: translate3d(-25vw, -35vh, 0) rotate(180deg) scale(1.25); }
+  100% { transform: translate3d(18vw, -25vh, 0) rotate(360deg) scale(1.08); }
+}
+@keyframes drift-noon-4 {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg) scale(0.90); }
+  33%  { transform: translate3d(-20vw, 25vh, 0) rotate(-90deg) scale(1.18); }
+  66%  { transform: translate3d(25vw, -20vh, 0) rotate(-180deg) scale(0.85); }
+  100% { transform: translate3d(-8vw, 8vh, 0) rotate(-360deg) scale(1); }
+}
+
+/* ── Afternoon Keyframes: Warm golden lazy drift (horizontally biased) ── */
+@keyframes drift-afternoon-1 {
+  0%   { transform: translate3d(-18vw, 0, 0) scale(1); }
+  50%  { transform: translate3d(30vw, 8vh, 0) scale(1.15); }
+  100% { transform: translate3d(-22vw, -8vh, 0) scale(0.90); }
+}
+@keyframes drift-afternoon-2 {
+  0%   { transform: translate3d(22vw, 0, 0) scale(1.10); }
+  50%  { transform: translate3d(-30vw, -10vh, 0) scale(0.85); }
+  100% { transform: translate3d(25vw, 10vh, 0) scale(1.15); }
+}
+@keyframes drift-afternoon-3 {
+  0%   { transform: translate3d(-22vw, 0, 0) scale(0.90); }
+  50%  { transform: translate3d(32vw, -6vh, 0) scale(1.20); }
+  100% { transform: translate3d(-28vw, 6vh, 0) scale(1.02); }
+}
+@keyframes drift-afternoon-4 {
+  0%   { transform: translate3d(18vw, 0, 0) scale(1.05); }
+  50%  { transform: translate3d(-25vw, 12vh, 0) scale(0.85); }
+  100% { transform: translate3d(22vw, -12vh, 0) scale(1.10); }
+}
+
+/* ── Evening Keyframes: Twilight sinking drift (mostly vertical drop) ── */
+@keyframes drift-evening-1 {
+  0%   { transform: translate3d(0, -20vh, 0) rotate(0deg) scale(1.10); }
+  50%  { transform: translate3d(10vw, 0, 0) rotate(45deg) scale(0.90); }
+  100% { transform: translate3d(-10vw, 20vh, 0) rotate(90deg) scale(1.05); }
+}
+@keyframes drift-evening-2 {
+  0%   { transform: translate3d(0, -28vh, 0) rotate(0deg) scale(0.95); }
+  50%  { transform: translate3d(-12vw, -6vh, 0) rotate(-60deg) scale(1.12); }
+  100% { transform: translate3d(12vw, 18vh, 0) rotate(-120deg) scale(0.90); }
+}
+@keyframes drift-evening-3 {
+  0%   { transform: translate3d(0, -18vh, 0) rotate(0deg) scale(1.15); }
+  50%  { transform: translate3d(15vw, 6vh, 0) rotate(35deg) scale(0.98); }
+  100% { transform: translate3d(-15vw, 25vh, 0) rotate(70deg) scale(1.12); }
+}
+@keyframes drift-evening-4 {
+  0%   { transform: translate3d(0, -30vh, 0) rotate(0deg) scale(0.90); }
+  50%  { transform: translate3d(-10vw, -10vh, 0) rotate(-40deg) scale(1.10); }
+  100% { transform: translate3d(10vw, 15vh, 0) rotate(-80deg) scale(1); }
+}
+
+/* ── Night Keyframes: Calming deep indigo breaths (pulsing in place) ── */
+@keyframes drift-night-1 {
+  0%   { transform: translate3d(-6vw, -6vh, 0) scale(0.80); }
+  50%  { transform: translate3d(10vw, 10vh, 0) scale(1.25); }
+  100% { transform: translate3d(-6vw, -6vh, 0) scale(0.80); }
+}
+@keyframes drift-night-2 {
+  0%   { transform: translate3d(10vw, 6vh, 0) scale(1.20); }
+  50%  { transform: translate3d(-10vw, -10vh, 0) scale(0.75); }
+  100% { transform: translate3d(10vw, 6vh, 0) scale(1.20); }
+}
+@keyframes drift-night-3 {
+  0%   { transform: translate3d(-10vw, 10vh, 0) scale(0.85); }
+  50%  { transform: translate3d(12vw, -12vh, 0) scale(1.30); }
+  100% { transform: translate3d(-10vw, 10vh, 0) scale(0.85); }
+}
+@keyframes drift-night-4 {
+  0%   { transform: translate3d(6vw, -8vh, 0) scale(1.15); }
+  50%  { transform: translate3d(-12vw, 12vh, 0) scale(0.80); }
+  100% { transform: translate3d(6vw, -8vh, 0) scale(1.15); }
+}
+
+/* ── Deep Night Keyframes: Ultra-slow lo-fi breathing (minimal movement) ── */
+@keyframes drift-deepnight-1 {
+  0%   { transform: translate3d(0, 0, 0) scale(1.0); }
+  50%  { transform: translate3d(6vw, -6vh, 0) scale(1.15); }
+  100% { transform: translate3d(-3vw, 3vh, 0) scale(0.90); }
+}
+@keyframes drift-deepnight-2 {
+  0%   { transform: translate3d(0, 0, 0) scale(0.90); }
+  50%  { transform: translate3d(-6vw, 6vh, 0) scale(1.10); }
+  100% { transform: translate3d(3vw, -3vh, 0) scale(0.85); }
+}
+@keyframes drift-deepnight-3 {
+  0%   { transform: translate3d(0, 0, 0) scale(1.10); }
+  50%  { transform: translate3d(3vw, 6vh, 0) scale(0.85); }
+  100% { transform: translate3d(-6vw, -6vh, 0) scale(1.18); }
+}
+@keyframes drift-deepnight-4 {
+  0%   { transform: translate3d(0, 0, 0) scale(0.85); }
+  50%  { transform: translate3d(-6vw, -3vh, 0) scale(1.12); }
+  100% { transform: translate3d(6vw, 3vh, 0) scale(0.90); }
+}
+
+/* ── Chat Page Specific Overrides ── */
+body.fluid-bg-chat #fluid-bg {
+  opacity: 0.22;
+}
+
+/* Contextual opacity scaling: opacity scaled between 0.15 and 0.25 depending on diurnal phase */
+body.fluid-bg-chat.theme-morning #fluid-bg { opacity: 0.25; }
+body.fluid-bg-chat.theme-noon #fluid-bg { opacity: 0.15; }
+body.fluid-bg-chat.theme-afternoon #fluid-bg { opacity: 0.18; }
+body.fluid-bg-chat.theme-evening #fluid-bg { opacity: 0.20; }
+body.fluid-bg-chat.theme-night #fluid-bg { opacity: 0.22; }
+body.fluid-bg-chat.theme-deepnight #fluid-bg { opacity: 0.25; }
+
+/* Ensure absolute text legibility on all message elements in chat */
+body.fluid-bg-chat .message-item,
+body.fluid-bg-chat .message-text,
+body.fluid-bg-chat #messagesList {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.fluid-bg-chat,
+body.fluid-bg-chat .chat-main,
+body.fluid-bg-chat main,
+body.fluid-bg-chat #messagesList {
+  background-color: transparent !important;
+}
+
+body.fluid-bg-chat .sidebar {
+  background-color: rgba(22, 27, 34, 0.45) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+body.fluid-bg-chat header {
+  background-color: rgba(22, 27, 34, 0.65) !important;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+}
+
+body.fluid-bg-chat #composerBar {
+  background-color: rgba(31, 34, 40, 0.65) !important;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+}
+
+/* ── Reduced-motion accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+  #fluid-bg .fluid-blob {
+    animation-duration: 60s !important;
+  }
+}

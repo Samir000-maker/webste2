@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Picture - Vibegra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2dd4bf",
+                        "primary-hover": "#14b8a6",
+                        "accent": "#6366f1",
+                        "dark-bg": "#050505",
+                        "dark-surface": "#0f1115",
+                        "glass-border": "rgba(255, 255, 255, 0.06)",
+                        "glass-surface": "rgba(20, 22, 27, 0.7)",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'metallic': 'linear-gradient(145deg, #1a1d23, #0f1115)',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 25px -5px rgba(45, 212, 191, 0.15)',
+                        'card': '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                        'inner-light': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body class="relative flex min-h-screen w-full flex-col bg-dark-bg text-white font-display overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+
+    <div id="contactSupportModal" class="fixed inset-0 z-[70] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-close="1"></div>
+        <div class="relative w-[92vw] max-w-md rounded-2xl bg-[#0f1115]/95 border border-white/10 shadow-2xl p-6">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold tracking-tight text-white">Contact support</h3>
+                    <p class="mt-1 text-sm text-gray-400">Email us and we’ll get back to you.</p>
+                </div>
+                <button type="button" class="text-gray-400 hover:text-white transition-colors" data-close="1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="mt-5 flex items-center gap-2 rounded-xl bg-black/30 border border-white/10 px-4 py-3">
+                <span class="text-sm font-semibold text-white select-all" id="contactSupportEmail">contact@vibegra.com</span>
+                <button id="contactSupportCopyBtn" type="button" class="ml-auto inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-2 text-xs font-semibold text-white/80 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                </button>
+            </div>
+            <p id="contactSupportCopyHint" class="mt-2 text-xs text-gray-500 hidden">Copied</p>
+        </div>
+    </div>
+    <!-- Animated Background -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#121418] via-[#050505] to-[#08090b]"></div>
+        <div class="absolute -top-[20%] left-[10%] w-[50vw] h-[50vw] bg-primary/5 rounded-full blur-[120px] opacity-40"></div>
+        <div class="absolute top-[40%] -right-[10%] w-[40vw] h-[40vw] bg-accent/5 rounded-full blur-[100px] opacity-30"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDI1Ii8+Cjwvc3ZnPg==')] opacity-20"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="relative z-10 flex items-center justify-between px-6 py-6 md:px-12 lg:px-40 border-b border-white/5 bg-dark-bg/50 backdrop-blur-sm">
+        <div class="flex items-center gap-3">
+            <div class="size-8 text-primary flex items-center justify-center drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]">
+                <svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-white/90">Vibegra</h2>
+        </div>
+        <div class="hidden md:flex items-center gap-3 text-sm font-medium text-gray-500">
+            <span class="hover:text-gray-300 transition-colors cursor-pointer">Account</span>
+            <span class="material-symbols-outlined text-[16px] text-gray-600">chevron_right</span>
+            <span class="text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.3)]">Photo</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex flex-1 flex-col justify-center items-center px-4 py-12 md:py-16">
+        <div class="w-full max-w-[560px]">
+            <!-- Header Text -->
+            <div class="mb-10 text-center md:text-left">
+                <div class="mb-6 flex justify-center md:justify-start">
+                    <button id="contactSupportBtn" type="button" class="group inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-2 text-xs font-semibold text-white/80 backdrop-blur-md transition-colors">
+                        <span class="material-symbols-outlined text-[18px] text-white/80">support_agent</span>
+                        <span>Contact</span>
+                    </button>
+                </div>
+                <div class="inline-flex items-center justify-center size-14 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent text-primary mb-6 shadow-glow ring-1 ring-primary/20 backdrop-blur-md">
+                    <span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold leading-tight tracking-tight text-white mb-3 drop-shadow-lg">
+                    Add a profile picture
+                </h1>
+                <p class="text-gray-400 text-lg leading-relaxed font-light tracking-wide max-w-md">
+                    Personalize your profile with a photo. It helps your friends recognize you in the community.
+                </p>
+            </div>
+
+            <!-- Card -->
+            <div class="relative bg-glass-surface backdrop-blur-xl rounded-2xl border border-glass-border shadow-card p-8 md:p-12 overflow-hidden group/card">
+                <div class="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                
+                <!-- Avatar Section -->
+                <div class="relative z-10 flex flex-col items-center justify-center gap-10 pb-6">
+                    <div class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-md opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div id="previewContainer" class="relative w-48 h-48 rounded-full bg-[#121418] flex items-center justify-center border border-white/10 shadow-[inset_0_4px_20px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-300 group-hover:border-primary/30">
+                            <span class="material-symbols-outlined text-[80px] text-gray-700 group-hover:text-gray-600 transition-colors">person</span>
+                            <img id="preview" class="hidden w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
+                                <span class="text-white/80 text-xs font-medium tracking-widest uppercase">Change</span>
+                            </div>
+                        </div>
+                        <label for="fileInput" class="absolute bottom-2 right-2 flex items-center justify-center size-12 rounded-full bg-gradient-to-br from-primary to-primary-hover text-black shadow-[0_4px_12px_rgba(45,212,191,0.3)] hover:scale-110 hover:shadow-[0_0_20px_rgba(45,212,191,0.5)] transition-all duration-300 ring-4 ring-[#16191f] cursor-pointer z-10">
+                            <span class="material-symbols-outlined text-[22px] font-bold">upload</span>
+                        </label>
+                        <input type="file" id="fileInput" accept="image/*" class="hidden">
+                    </div>
+
+                    <!-- Choose File Button -->
+                    <div class="flex flex-col items-center gap-3 w-full">
+                        <label for="fileInput" class="cursor-pointer relative overflow-hidden inline-flex items-center justify-center px-8 py-3.5 rounded-xl border border-white/10 bg-white/5 text-gray-200 font-semibold text-sm hover:bg-white/10 hover:border-white/20 hover:text-white transition-all duration-300 shadow-inner-light w-full sm:w-auto min-w-[240px] group">
+                            <span class="material-symbols-outlined text-[20px] mr-2.5 text-primary/80 group-hover:text-primary transition-colors">folder_open</span>
+                            Choose from Library
+                        </label>
+                        <p class="text-xs font-medium text-gray-500 tracking-wide uppercase opacity-70">
+                            JPG, PNG or GIF. Max size 5MB.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-10 pt-8 border-t border-white/5 flex flex-col gap-4">
+                    <button id="saveBtn" disabled class="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary via-teal-300 to-primary text-slate-900 shadow-[0_0_25px_-5px_rgba(45,212,191,0.25)] hover:shadow-[0_0_35px_-5px_rgba(45,212,191,0.4)] transition-all duration-300 h-14 flex items-center justify-center gap-2 group/btn disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="font-bold text-base tracking-wide z-10">Save &amp; Continue</span>
+                        <span class="material-symbols-outlined transition-transform duration-300 group-hover/btn:translate-x-1 z-10">arrow_forward</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out"></div>
+                    </button>
+                    <button id="skipBtn" class="w-full h-12 rounded-xl text-gray-500 font-medium text-sm hover:text-white transition-colors">
+                        Skip for now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="mt-8 flex justify-center gap-8">
+                <a href="vibegra-privacy-policy.html" class="text-xs font-medium text-gray-600 hover:text-primary transition-colors flex items-center gap-1.5 uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-[14px]">help</span>
+                    Help Center
+                </a>
+                <a href="vibegra-privacy-policy.html" class="text-xs font-medium text-gray-600 hover:text-primary transition-colors flex items-center gap-1.5 uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-[14px]">security</span>
+                    Privacy Policy
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/env-config.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+    (async () => {
+        try {
+            if (!firebase.apps?.length) {
+                firebase.initializeApp(window.__VIBE_FIREBASE_CONFIG__);
+            }
+        } catch (error) {
+            console.error('Firebase init error:', error);
+        }
+
+        const { Auth, API, Toast, Loading, PageTransition } = window.MoodApp;
+
+        const toastError = (msg) => {
+            try {
+                if (Toast && typeof Toast.error === 'function') return Toast.error(msg);
+            } catch { }
+            console.error(msg);
+        };
+        const toastSuccess = (msg) => {
+            try {
+                if (Toast && typeof Toast.success === 'function') return Toast.success(msg);
+            } catch { }
+            console.log(msg);
+        };
+
+        const ensureLoadingPopup = () => {
+            let el = document.getElementById('profileUploadLoadingPopup');
+            if (el) return el;
+            el = document.createElement('div');
+            el.id = 'profileUploadLoadingPopup';
+            el.className = 'fixed inset-0 z-[9999] hidden items-center justify-center';
+            el.innerHTML = `
+              <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+              <div class="relative w-[92vw] max-w-sm rounded-2xl bg-[#0f1115]/95 border border-white/10 shadow-2xl p-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary" style="animation: spin 1s linear infinite;"></div>
+                  <div>
+                    <div class="text-base font-bold text-white">Uploading…</div>
+                    <div id="profileUploadLoadingText" class="mt-1 text-sm text-gray-400">Uploading your picture…</div>
+                  </div>
+                </div>
+              </div>
+            `;
+            document.body.appendChild(el);
+            return el;
+        };
+
+        const loadingShow = (msg) => {
+            try {
+                if (Loading && typeof Loading.show === 'function') Loading.show(msg || 'Uploading...');
+            } catch { }
+            const el = ensureLoadingPopup();
+            const t = el.querySelector('#profileUploadLoadingText');
+            if (t && msg) t.textContent = msg;
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        };
+
+        const loadingHide = () => {
+            try {
+                if (Loading && typeof Loading.hide === 'function') Loading.hide();
+            } catch { }
+            const el = document.getElementById('profileUploadLoadingPopup');
+            if (!el) return;
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        };
+
+        try {
+            await Auth.requireAuth();
+        } catch (err) {
+            console.error('Auth required failed:', err);
+            return;
+        }
+
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewContainer = document.getElementById('previewContainer');
+        const saveBtn = document.getElementById('saveBtn');
+        const skipBtn = document.getElementById('skipBtn');
+
+        let selectedFile = null;
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                toastError('File size must be under 5MB');
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                toastError('Please select an image file');
+                return;
+            }
+
+            selectedFile = file;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+                previewContainer
+                    .querySelector('.material-symbols-outlined')
+                    .classList.add('hidden');
+                saveBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                toastError('Please select a file first');
+                return;
+            }
+
+            loadingShow('Uploading your picture...');
+
+            try {
+                console.log('Uploading file:', selectedFile.name, selectedFile.type, selectedFile.size);
+                
+                const result = await API.uploadFile('/api/users/upload-pfp', selectedFile);
+                
+                console.log('Upload result:', result);
+                
+                loadingHide();
+                toastSuccess('Profile picture saved!');
+
+                setTimeout(() => {
+                    PageTransition.navigateTo('/mood.html');
+                }, 1000);
+
+            } catch (error) {
+                loadingHide();
+                console.error('Upload error:', error);
+
+                let msg = 'Failed to upload picture. Please try again.';
+                try {
+                    if (error && typeof error.message === 'string' && error.message.trim()) {
+                        // app.js sometimes throws with message being JSON string
+                        const maybeJson = error.message.trim();
+                        if (maybeJson.startsWith('{') && maybeJson.endsWith('}')) {
+                            const parsed = JSON.parse(maybeJson);
+                            if (parsed && parsed.error) msg = parsed.error;
+                            else msg = error.message;
+                        } else {
+                            msg = error.message;
+                        }
+                    }
+                } catch { }
+
+                toastError(msg);
+            }
+        });
+
+        skipBtn.addEventListener('click', () => {
+            PageTransition.navigateTo('/mood.html');
+        });
+    })();
+    </script>
+    <script>
+        (function () {
+            const btn = document.getElementById('contactSupportBtn');
+            const modal = document.getElementById('contactSupportModal');
+            const copyBtn = document.getElementById('contactSupportCopyBtn');
+            const emailEl = document.getElementById('contactSupportEmail');
+            const hint = document.getElementById('contactSupportCopyHint');
+            if (!btn || !modal || !copyBtn || !emailEl) return;
+
+            const open = () => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            };
+            const close = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                if (hint) hint.classList.add('hidden');
+            };
+
+            btn.addEventListener('click', open);
+            modal.addEventListener('click', (e) => {
+                const t = e.target;
+                if (t && t.closest && t.closest('[data-close="1"]')) close();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') close();
+            });
+
+            copyBtn.addEventListener('click', async () => {
+                const text = emailEl.textContent || 'contact@vibegra.com';
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
+                    if (hint) {
+                        hint.classList.remove('hidden');
+                        setTimeout(() => hint.classList.add('hidden'), 1200);
+                    }
+                } catch { }
+            });
+        })();
+    </script>
+</body>
+</html>

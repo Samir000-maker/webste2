@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/public/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+<link rel="canonical" href="https://vibegra.com/">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#6320e9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vibegra Home Screen</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/env-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+<script id="tailwind-config">
+tailwind.config = {
+darkMode: "class",
+theme: {
+extend: {
+colors: {
+"primary": "#6320e9",
+"background-light": "#f6f6f8",
+"background-dark": "#161121",
+"accent-teal": "#2DD4BF",
+"accent-amber": "#F59E0B",
+},
+fontFamily: {
+"display": ["Plus Jakarta Sans", "sans-serif"]
+},
+borderRadius: {
+"DEFAULT": "0.5rem",
+"lg": "1rem",
+"xl": "1.5rem",
+"full": "9999px"
+},
+backgroundImage: {
+'mesh-gradient': 'radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(260,82%,65%,0.15) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,0.3) 0, transparent 50%)',
+'glass-gradient': 'linear-gradient(to bottom right, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))',
+'glass-border': 'linear-gradient(to bottom right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05))'
+}
+},
+},
+}
+</script>
+<style>
+.premium-bg {
+background-color: #161121;
+background-image:
+radial-gradient(circle at 15% 50%, rgba(45, 212, 191, 0.08) 0%, transparent 40%),
+radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.06) 0%, transparent 40%),
+radial-gradient(circle at 50% 80%, rgba(99, 32, 233, 0.15) 0%, transparent 50%);
+}
+
+@keyframes breathe {
+0%, 100% { transform: scale(1); opacity: 1; }
+50% { transform: scale(1.02); opacity: 0.95; }
+}
+
+.glass-card {
+background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border: 1px solid rgba(255, 255, 255, 0.08);
+box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+perspective: 1000px;
+animation: breathe 4s ease-in-out infinite;
+}
+.glass-card:hover {
+border-color: rgba(99, 32, 233, 0.5);
+background: linear-gradient(135deg, rgba(99, 32, 233, 0.1), rgba(255, 255, 255, 0.01));
+transform: translateY(-8px);
+box-shadow: 0 16px 48px 0 rgba(99, 32, 233, 0.3), 0 0 40px rgba(99, 32, 233, 0.2);
+animation: none;
+}
+
+.emoji-wrapper {
+transform-style: preserve-3d;
+transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.glass-card:hover .emoji-wrapper {
+transform: perspective(1000px) rotateY(5deg);
+}
+
+.glow-button {
+box-shadow: 0 0 20px rgba(99, 32, 233, 0.3);
+transition: all 0.3s ease;
+}
+.glow-button:hover {
+box-shadow: 0 0 30px rgba(99, 32, 233, 0.6);
+transform: scale(1.02);
+}
+
+.nav-link { position: relative; }
+.nav-link::after {
+content: '';
+position: absolute;
+width: 0;
+height: 2px;
+bottom: -4px;
+left: 50%;
+background-color: #6320e9;
+transition: all 0.3s ease;
+transform: translateX(-50%);
+}
+.nav-link:hover::after { width: 100%; }
+
+.emoji-3d {
+filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+font-size: 3.5rem;
+line-height: 1;
+display: inline-block;
+animation: float 3s ease-in-out infinite;
+transform-style: preserve-3d;
+}
+
+@keyframes float {
+0%, 100% { transform: translateY(0px) rotate(0deg); }
+50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes pulse-glow {
+0%, 100% { filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }
+50% { filter: drop-shadow(0 8px 24px rgba(99,32,233,0.6)); }
+}
+
+.emoji-3d:nth-child(1) { animation: float 3s ease-in-out infinite; }
+.emoji-3d:nth-child(2) { animation: float 3.5s ease-in-out infinite; animation-delay: 0.2s; }
+.emoji-3d:nth-child(3) { animation: float 2.8s ease-in-out infinite; animation-delay: 0.4s; }
+.emoji-3d:nth-child(4) { animation: float 3.2s ease-in-out infinite; animation-delay: 0.6s; }
+
+.group:hover .emoji-3d {
+animation: none;
+transform: scale(1.25) translateY(-8px) rotateZ(8deg) rotateY(10deg);
+filter: drop-shadow(0 12px 32px rgba(99,32,233,0.7)) drop-shadow(0 0 20px rgba(99,32,233,0.5));
+}
+.glass-card:hover .emoji-3d { animation-play-state: paused; }
+.ring-2 .emoji-3d { animation: float 2.5s ease-in-out infinite, pulse-glow 2s ease-in-out infinite; }
+
+a { text-decoration: none; }
+a.glow-button { display: inline-flex; }
+.gradient-highlight {
+  background: linear-gradient(135deg, #2DD4BF 0%, #6320e9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-heading {
+  position: relative;
+}
+
+/* ── Theme-adaptive text colors ── */
+.mood-hint {
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color 2s cubic-bezier(0.25,1,0.5,1);
+}
+body.theme-morning .mood-hint { color: rgba(255,245,230,0.9); }
+body.theme-noon .mood-hint      { color: rgba(230,245,255,0.9); }
+body.theme-afternoon .mood-hint { color: rgba(255,242,225,0.9); }
+body.theme-evening .mood-hint   { color: rgba(235,228,255,0.9); }
+body.theme-night .mood-hint     { color: rgba(225,232,255,0.9); }
+body.theme-deepnight .mood-hint { color: rgba(225,218,245,0.9); }
+
+.section-label {
+  color: #6320e9;
+  transition: color 2s cubic-bezier(0.25,1,0.5,1);
+}
+body.theme-morning .section-label { color: #fbbf24; }
+body.theme-noon .section-label      { color: #2DD4BF; }
+body.theme-afternoon .section-label { color: #fb923c; }
+body.theme-evening .section-label   { color: #a78bfa; }
+body.theme-night .section-label     { color: #818cf8; }
+body.theme-deepnight .section-label { color: #a78bfa; }
+</style>
+<link rel="stylesheet" href="/fluid-bg.css">
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-white premium-bg min-h-screen flex flex-col overflow-x-hidden selection:bg-primary selection:text-white">
+<script src="/fluid-bg.js"></script>
+
+<!-- Contact Support Modal -->
+<div id="contactSupportModal" class="fixed inset-0 z-[70] hidden items-center justify-center">
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-close="1"></div>
+<div class="relative w-[92vw] max-w-md rounded-2xl bg-[#15161C]/95 border border-white/10 shadow-2xl p-6">
+<div class="flex items-start justify-between gap-4">
+<div>
+<h3 class="text-lg font-bold tracking-tight text-white">Contact support</h3>
+<p class="mt-1 text-sm text-slate-400">Email us and we'll get back to you.</p>
+</div>
+<button type="button" class="text-slate-400 hover:text-white transition-colors" data-close="1">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="mt-5 flex items-center gap-2 rounded-xl bg-black/30 border border-white/10 px-4 py-3">
+<span class="text-sm font-semibold text-white select-all" id="contactSupportEmail">contact@vibegra.com</span>
+<button id="contactSupportCopyBtn" type="button" class="ml-auto inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-2 text-xs font-semibold text-white/80 transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+<p id="contactSupportCopyHint" class="mt-2 text-xs text-slate-500 hidden">Copied</p>
+</div>
+</div>
+
+<!-- Navigation -->
+<nav class="fixed w-full z-50 top-0 left-0 transition-all duration-300 backdrop-blur-md bg-background-dark/30 border-b border-white/5">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-3 group cursor-pointer">
+<div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+<img src="/public/favicon.png" alt="Vibegra" class="w-8 h-8 object-contain">
+</div>
+<span class="text-xl font-bold tracking-tight">Vibegra</span>
+</div>
+<div class="hidden md:flex items-center gap-10"></div>
+<div class="flex items-center gap-4">
+<a href="login.html" class="hidden md:flex text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer">Sign In</a>
+<a href="signup.html" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-full text-sm font-medium transition-colors border border-white/10 backdrop-blur-sm cursor-pointer">
+Get Started
+</a>
+</div>
+</div>
+</nav>
+
+<!-- Main Content -->
+<main class="flex-grow flex flex-col justify-center relative pt-16">
+<!-- Ambient Blur Effects -->
+<div class="absolute top-1/4 left-10 w-64 h-64 bg-accent-teal/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute bottom-1/4 right-10 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+<div class="max-w-7xl mx-auto w-full px-6 py-8 lg:py-14 z-10 flex flex-col items-center text-center">
+
+<!-- Hero Section -->
+<div class="max-w-2xl mx-auto mb-14 space-y-8">
+<div id="socialClubMountIndex"></div>
+<div id="socialClubOwnerToggleIndex" class="hidden w-full max-w-3xl mx-auto">
+<div class="flex items-center justify-between gap-3 rounded-2xl bg-white/5 border border-white/10 px-4 py-3 backdrop-blur-sm">
+<div class="text-left">
+<div class="text-sm font-semibold text-white">Social Club Live</div>
+<div id="socialClubOwnerToggleHintIndex" class="text-xs text-slate-400">Only visible to the owner account</div>
+</div>
+<label class="inline-flex items-center gap-2 select-none">
+<span id="socialClubOwnerToggleStateIndex" class="text-xs font-semibold text-white/70">OFF</span>
+<input id="socialClubOwnerToggleCheckboxIndex" type="checkbox" class="h-5 w-10 rounded-full accent-primary cursor-pointer" />
+</label>
+</div>
+</div>
+
+<h1 class="hero-heading text-4xl md:text-6xl font-bold tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/50">
+  Connect on how<br/><span class="gradient-highlight">you feel.</span>
+</h1>
+</div>
+
+<!-- CTA Section -->
+<div class="flex flex-col items-center gap-6 mb-16">
+<button id="connectNowBtn" disabled class="bg-primary hover:bg-primary/90 text-white text-lg font-semibold px-12 py-4 rounded-xl glow-button flex items-center gap-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary">
+Connect Now
+<span class="material-icons-outlined text-xl">arrow_forward</span>
+</button>
+<div class="flex items-center gap-6 text-sm text-white/80 font-medium tracking-wide">
+<div class="flex items-center gap-1.5">
+<span class="material-icons-outlined text-base text-accent-teal">verified_user</span>
+<span>End-to-end Encrypted</span>
+</div>
+<div class="w-1 h-1 rounded-full bg-white/20"></div>
+<div class="flex items-center gap-1.5">
+<span class="material-icons-outlined text-base text-primary">face</span>
+<span>Verified Profiles Only</span>
+</div>
+</div>
+</div>
+
+<!-- Mood Cards -->
+<div class="w-full max-w-6xl mx-auto mb-16">
+<p class="text-sm font-medium section-label mb-6 uppercase tracking-widest">How are you feeling?</p>
+<div id="moodCardsGrid" class="grid grid-cols-2 md:grid-cols-5 gap-5"></div>
+</div>
+</div>
+
+<!-- Decorative Background Elements -->
+<div class="absolute top-0 w-full h-full overflow-hidden pointer-events-none z-0">
+<div class="absolute top-[15%] right-[10%] w-32 h-32 opacity-20" style="background-image: radial-gradient(circle, rgba(99,32,233,0.4) 0%, transparent 70%);"></div>
+<div class="absolute bottom-[20%] left-[5%] w-48 h-48 opacity-10" style="background-image: radial-gradient(circle, rgba(45,212,191,0.4) 0%, transparent 70%);"></div>
+</div>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-white/5 bg-background-dark/50 backdrop-blur-sm relative z-10">
+<div class="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="text-white/60 text-sm">
+        &copy; 2026 Vibegra. All rights reserved.
+      </div>
+      <div class="flex items-center gap-6">
+        <button id="contactSupportBtn" type="button" class="text-white/60 hover:text-white text-sm transition-colors bg-transparent border-none cursor-pointer p-0">
+          Contact
+        </button>
+        <a class="text-white/60 hover:text-white text-sm transition-colors" href="vibegra-privacy-policy.html">Privacy Policy</a>
+      </div>
+</div>
+</footer>
+
+<script src="/pwa-install.js"></script>
+<script src="/index.js"></script>
+</body>
+</html>

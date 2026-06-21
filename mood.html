@@ -1,0 +1,983 @@
+
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>How are you feeling? - MoodJournal</title>
+ 
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#8b5cf6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+ 
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-dark: #16172b;
+      --bg-card: #1e2139;
+      --bg-card-hover: #252846;
+      --border-dark: #2a2d4a;
+      --text-primary: #ffffff;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent-purple: #8b5cf6;
+      --accent-purple-light: #a78bfa;
+      --accent-blue: #6366f1;
+    }
+ 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+ 
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+ 
+    .gradient-text {
+      background: linear-gradient(135deg, #a78bfa 0%, #d946ef 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+ 
+    .header {
+      border-bottom: 1px solid var(--border-dark);
+      background: rgba(22, 23, 43, 0.8);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+ 
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      height: 78px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+ 
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+ 
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+ 
+    .nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+ 
+    .nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+ 
+    .nav a:hover {
+      color: var(--text-primary);
+    }
+ 
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+ 
+    /* ── Profile / user-menu ── */
+    .user-menu {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 200;
+    }
+ 
+    .profile-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 9999px;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      background: rgba(30, 33, 57, 0.75);
+      overflow: hidden;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: transform 0.15s, border-color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+ 
+    .profile-icon-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(167, 139, 250, 0.55);
+      background: rgba(30, 33, 57, 0.9);
+    }
+ 
+    .profile-icon-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+ 
+    .profile-icon-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #16172b;
+      background: linear-gradient(135deg, #a78bfa 0%, #6366f1 100%);
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+ 
+    /* ── Profile dropdown menu ── */
+    .profile-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 220px;
+      background: rgba(30, 33, 57, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 14px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      padding: 8px;
+      z-index: 300;
+      backdrop-filter: blur(10px);
+      /* animation */
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+      pointer-events: none;
+      transition: opacity 0.18s cubic-bezier(0.4,0,0.2,1),
+                  transform 0.18s cubic-bezier(0.4,0,0.2,1);
+    }
+ 
+    .profile-menu.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+ 
+    .profile-menu button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 10px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.92);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+ 
+    .profile-menu button:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+ 
+    .profile-menu .material-symbols-outlined {
+      font-size: 18px;
+      color: rgba(167, 139, 250, 0.95);
+    }
+ 
+    /* logout button icon in menu — red tint */
+    .profile-menu .menu-logout .material-symbols-outlined {
+      color: rgba(248, 113, 113, 0.9);
+    }
+ 
+    .profile-menu .menu-logout {
+      color: rgba(248, 113, 113, 0.92);
+    }
+ 
+    .profile-menu .menu-logout:hover {
+      background: rgba(239, 68, 68, 0.08);
+    }
+ 
+    /* Thin divider between menu items */
+    .profile-menu .menu-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.07);
+      margin: 6px 4px;
+    }
+ 
+    .notification-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+ 
+    .notification-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+ 
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+ 
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-purple-light);
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+    }
+ 
+    .status-indicator {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-purple-light);
+      border-radius: 50%;
+    }
+ 
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+ 
+    .hero h1 {
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+ 
+    .hero p {
+      font-size: 16px;
+      color: #f1f5f9;
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      transition: color 2s cubic-bezier(0.25,1,0.5,1);
+    }
+    body.theme-morning .hero p { color: #f5f0e5; }
+    body.theme-noon .hero p      { color: #e8f2f8; }
+    body.theme-afternoon .hero p { color: #f5ede0; }
+    body.theme-evening .hero p   { color: #ede8f5; }
+    body.theme-night .hero p     { color: #e8ecf5; }
+    body.theme-deepnight .hero p { color: #eee8f5; }
+ 
+    .primary-btn {
+      background: white;
+      color: #16172b;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 48px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      font-family: inherit;
+    }
+ 
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+ 
+    .primary-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+ 
+    .helper-text {
+      text-align: center;
+      color: #e2e8f0;
+      font-size: 13px;
+      margin-bottom: 32px;
+      margin-top: 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: color 2s cubic-bezier(0.25,1,0.5,1);
+    }
+    body.theme-morning .helper-text { color: #e8e2d5; }
+    body.theme-noon .helper-text      { color: #d8e2e8; }
+    body.theme-afternoon .helper-text { color: #e8e0d0; }
+    body.theme-evening .helper-text   { color: #ded8e8; }
+    body.theme-deepnight .helper-text { color: #d8d5e0; }
+ 
+    .moods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto 40px;
+    }
+ 
+    .mood-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 16px;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      perspective: 1000px;
+    }
+ 
+    .mood-card:hover {
+      border-color: rgba(139, 92, 246, 0.5) !important;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(255, 255, 255, 0.01)) !important;
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px 0 rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.2) !important;
+    }
+ 
+    .mood-card.selected {
+      background: rgba(139, 92, 246, 0.12) !important;
+      border-color: #8b5cf6 !important;
+      box-shadow: 0 0 0 1px #8b5cf6, 0 0 30px rgba(139, 92, 246, 0.3) !important;
+      transform: translateY(-4px);
+    }
+
+    .emoji-wrapper {
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .mood-card:hover .emoji-wrapper {
+      transform: perspective(1000px) rotateY(5deg);
+    }
+ 
+    .emoji-3d {
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-size: 3.5rem;
+      line-height: 1;
+      display: inline-block;
+      animation: float 3s ease-in-out infinite;
+      transform-style: preserve-3d;
+    }
+ 
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+    }
+ 
+    .mood-card:hover .emoji-3d {
+      animation-play-state: paused;
+      transform: scale(1.25) translateY(-8px) rotateZ(8deg) rotateY(10deg);
+      filter: drop-shadow(0 12px 32px rgba(139,92,246,0.7)) drop-shadow(0 0 20px rgba(139,92,246,0.5));
+    }
+ 
+    .mood-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      background: #6366f1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+    }
+ 
+    .mood-emoji {
+      font-size: 56px;
+      line-height: 1;
+    }
+ 
+    .mood-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: capitalize;
+    }
+ 
+    .context-section {
+      max-width: 700px;
+      margin: 0 auto 48px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    }
+ 
+    .context-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+ 
+    .context-icon { font-size: 18px; }
+ 
+    .context-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+ 
+    .context-textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 16px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      transition: all 0.2s;
+      line-height: 1.6;
+    }
+ 
+    .context-textarea::placeholder { color: var(--text-muted); }
+ 
+    .context-textarea:focus {
+      border-color: var(--accent-blue);
+      background: rgba(0, 0, 0, 0.3);
+    }
+ 
+    .context-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      gap: 8px;
+    }
+ 
+    .privacy-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+ 
+    .secondary-btn {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-purple-light);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+ 
+    .secondary-btn:hover:not(:disabled) {
+      background: rgba(139, 92, 246, 0.25);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+ 
+    .secondary-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+ 
+    .secondary-btn .material-symbols-outlined { font-size: 18px; }
+ 
+    .sessions-section { margin-top: 64px; }
+ 
+    .sessions-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+ 
+    .sessions-title { font-size: 20px; font-weight: 700; }
+ 
+    .view-all-link {
+      color: var(--accent-purple-light);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s;
+    }
+ 
+    .view-all-link:hover { color: var(--accent-purple); }
+ 
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+ 
+    .session-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
+      cursor: pointer;
+    }
+ 
+    .session-card:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3) !important;
+    }
+ 
+    .session-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+ 
+    .session-emoji {
+      width: 40px;
+      height: 40px;
+      background: rgba(139, 92, 246, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+ 
+    .session-info { flex: 1; }
+ 
+    .session-mood {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+ 
+    .session-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+ 
+    .session-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+ 
+    footer {
+      border-top: 1px solid var(--border-dark);
+      padding: 24px;
+      margin-top: 64px;
+      background: rgba(22, 23, 43, 0.5);
+      backdrop-filter: blur(10px);
+    }
+ 
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+ 
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e2e8f0;
+      font-size: 13px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      transition: color 2s cubic-bezier(0.25,1,0.5,1);
+    }
+    body.theme-morning .footer-brand { color: #e8e2d5; }
+    body.theme-noon .footer-brand      { color: #d8e2e8; }
+    body.theme-afternoon .footer-brand { color: #e8e0d0; }
+    body.theme-evening .footer-brand   { color: #ded8e8; }
+    body.theme-deepnight .footer-brand { color: #d8d5e0; }
+ 
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+ 
+    .footer-links a,
+    .footer-links button {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 2s cubic-bezier(0.25,1,0.5,1);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      padding: 0;
+    }
+    body.theme-morning .footer-links a,
+    body.theme-morning .footer-links button { color: #e8e2d5; }
+    body.theme-noon .footer-links a,
+    body.theme-noon .footer-links button { color: #d8e2e8; }
+    body.theme-afternoon .footer-links a,
+    body.theme-afternoon .footer-links button { color: #e8e0d0; }
+    body.theme-evening .footer-links a,
+    body.theme-evening .footer-links button { color: #ded8e8; }
+    body.theme-deepnight .footer-links a,
+    body.theme-deepnight .footer-links button { color: #d8d5e0; }
+    .footer-links a:hover,
+    .footer-links button:hover {
+      color: #fff;
+    }
+ 
+    .footer-links a:hover,
+    .footer-links button:hover {
+      color: var(--text-primary);
+    }
+ 
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+ 
+    .animate-fade-in-up { animation: fadeInUp 0.5s ease-out; }
+ 
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-dark);
+      border-top-color: var(--accent-purple);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+ 
+    @keyframes spin { to { transform: rotate(360deg); } }
+ 
+    .hidden { display: none !important; }
+ 
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 34px; }
+ 
+      .moods-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+ 
+      .mood-card { padding: 24px 16px; }
+      .mood-emoji { font-size: 40px; }
+      .nav { display: none; }
+      .sessions-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+<link rel="stylesheet" href="fluid-bg.css">
+</head>
+ 
+<body>
+<script src="fluid-bg.js"></script>
+  <!-- Contact Support Modal -->
+  <div id="contactSupportModal" class="hidden" style="position: fixed; inset: 0; z-index: 70; align-items: center; justify-content: center;">
+    <div data-close="1" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);"></div>
+    <div style="position: relative; width: 92vw; max-width: 420px; border-radius: 16px; background: rgba(30, 33, 57, 0.95); border: 1px solid rgba(255, 255, 255, 0.10); box-shadow: 0 20px 60px rgba(0,0,0,0.45); padding: 20px;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+        <div>
+          <div style="font-size: 16px; font-weight: 800;">Contact support</div>
+          <div style="margin-top: 4px; font-size: 13px; color: var(--text-secondary);">Email us and we'll get back to you.</div>
+        </div>
+        <button type="button" data-close="1" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer;">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px; border-radius: 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); padding: 12px 12px;">
+        <span id="contactSupportEmail" style="font-size: 14px; font-weight: 700; user-select: all;">contact@vibegra.com</span>
+        <button id="contactSupportCopyBtn" type="button" style="margin-left: auto; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); padding: 8px 10px; cursor: pointer; color: rgba(255,255,255,0.9);">
+          <span class="material-symbols-outlined" style="font-size: 18px;">content_copy</span>
+        </button>
+      </div>
+      <div id="contactSupportCopyHint" class="hidden" style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">Copied</div>
+    </div>
+  </div>
+ 
+  <!-- Profile Settings Modal -->
+  <div id="profileSettingsModal" class="hidden" style="position: fixed; inset: 0; z-index: 80; align-items: center; justify-content: center;">
+    <div data-close="1" style="position: absolute; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);"></div>
+    <div style="position: relative; width: 92vw; max-width: 560px; border-radius: 18px; background: rgba(15, 17, 21, 0.96); border: 1px solid rgba(255, 255, 255, 0.10); box-shadow: 0 22px 70px rgba(0,0,0,0.55); padding: 20px;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div>
+          <div style="font-size:16px; font-weight:900; letter-spacing:-0.01em;">Profile settings</div>
+          <div style="margin-top:4px; font-size:13px; color: var(--text-secondary);">Update your username and profile picture.</div>
+        </div>
+        <button type="button" data-close="1" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer;">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+ 
+      <div style="margin-top:16px; display:grid; grid-template-columns: 180px 1fr; gap:16px;">
+        <div style="display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:flex-start;">
+          <div id="profileModalAvatar" style="width: 160px; height: 160px; border-radius: 9999px; overflow:hidden; border: 2px solid rgba(255,255,255,0.10); background: rgba(30,33,57,0.75); display:flex; align-items:center; justify-content:center;">
+            <div id="profileModalAvatarFallback" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:40px; color:#16172b; background: linear-gradient(135deg, #a78bfa 0%, #6366f1 100%);">U</div>
+            <img id="profileModalAvatarImg" class="hidden" alt="Profile preview" style="width:100%; height:100%; object-fit:cover; display:block;" />
+          </div>
+          <label for="profileModalFileInput" style="width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 12px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); color: rgba(255,255,255,0.9); cursor:pointer; font-weight:800; font-size:13px;">
+            <span class="material-symbols-outlined" style="font-size:18px; color: rgba(167, 139, 250, 0.95);">photo_camera</span>
+            Choose photo
+          </label>
+          <input id="profileModalFileInput" type="file" accept="image/*" class="hidden" />
+          <div style="font-size:12px; color: var(--text-muted); text-align:center;">PNG/JPG, max 5MB</div>
+        </div>
+ 
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <div style="font-size:12px; font-weight:900; letter-spacing:0.12em; text-transform:uppercase; color: var(--text-muted); margin-left:4px;">Username</div>
+            <div style="margin-top:8px; display:flex; align-items:center; gap:10px; border-radius: 14px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.10); padding: 12px 12px;">
+              <span style="color: rgba(255,255,255,0.45); font-weight:900;">@</span>
+              <input id="profileModalUsername" type="text" maxlength="20" style="flex:1; background: transparent; border: none; outline: none; color: rgba(255,255,255,0.92); font-weight:800; font-family: inherit;" placeholder="your_username" />
+              <span id="profileModalUsernameStatus" style="font-size:12px; color: rgba(255,255,255,0.55);"></span>
+            </div>
+            <div id="profileModalUsernameHint" style="margin-top:8px; font-size:12px; color: var(--text-secondary);"></div>
+          </div>
+ 
+          <div style="display:flex; gap:10px; margin-top:4px;">
+            <button type="button" id="profileModalCancelBtn" style="flex:1; padding:12px 12px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); color: rgba(255,255,255,0.9); font-weight:900; cursor:pointer; font-family: inherit;">Cancel</button>
+            <button type="button" id="profileModalSaveBtn" style="flex:1; padding:12px 12px; border-radius: 14px; background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%); border: none; color: #04120e; font-weight:900; cursor:pointer; font-family: inherit;">Save</button>
+          </div>
+ 
+          <div id="profileModalError" class="hidden" style="margin-top:4px; padding: 10px 12px; border-radius: 14px; background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25); color: rgba(239,68,68,0.92); font-weight:800; font-size:12px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <!-- Logo only (no brand text) -->
+      <div class="logo">
+        <div class="logo-icon">✦</div>
+       <span class="logo-text">Vibegra</strong></span>
+      </div>
+ 
+      <nav class="nav">
+        <a href="#"></a>
+        <a href="#"></a>
+        <a href="#"></a>
+      </nav>
+ 
+      <div class="user-actions">
+        <button class="notification-btn"></button>
+        <div class="user-menu" id="userMenu">
+          <!-- Profile avatar button — clicking opens dropdown -->
+          <button type="button" class="profile-icon-btn" id="profileIconBtn" aria-haspopup="menu" aria-expanded="false">
+            <div class="profile-icon-fallback" id="profileIconFallback">U</div>
+            <img class="profile-icon-img hidden" id="profileIconImg" alt="Profile" />
+          </button>
+ 
+          <!-- Dropdown menu -->
+          <div class="profile-menu" id="profileMenu" role="menu" aria-label="Profile menu">
+            <button type="button" id="menuChangePfp" role="menuitem">
+              <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+              <span>Change profile picture</span>
+            </button>
+            <button type="button" id="menuChangeUsername" role="menuitem">
+              <span class="material-symbols-outlined" aria-hidden="true">badge</span>
+              <span>Change username</span>
+            </button>
+            <div class="menu-divider"></div>
+            <button type="button" id="logoutBtn" role="menuitem" class="menu-logout">
+              <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+ 
+  <main>
+    <div class="hero animate-fade-in-up">
+      <div style="margin-top: 12px; display: flex; justify-content: center;">
+        <button type="button" class="hidden" data-pwa-install="1">
+          <span class="vibe-pwa-icon" aria-hidden="true">↓</span>
+          <span>Install App</span>
+        </button>
+      </div>
+      <div style="margin-top: 12px; width: 100%; max-width: 760px; margin-left: auto; margin-right: auto;">
+        <div id="socialClubMountMood"></div>
+        <div id="socialClubOwnerToggleMood" class="hidden" style="margin-top: 12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; border-radius: 14px; background: rgba(30, 33, 57, 0.75); border: 1px solid rgba(255, 255, 255, 0.10); padding: 12px 14px;">
+            <div style="text-align:left;">
+              <div style="font-size: 13px; font-weight: 900;">Social Club Live</div>
+              <div id="socialClubOwnerToggleHintMood" style="margin-top:4px; font-size: 12px; color: var(--text-secondary);">Only visible to the owner account</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span id="socialClubOwnerToggleStateMood" style="font-size: 12px; font-weight: 900; color: rgba(255,255,255,0.75);">OFF</span>
+              <input id="socialClubOwnerToggleCheckboxMood" type="checkbox" style="width: 44px; height: 22px; cursor: pointer;" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <h1>
+        Connect with your<br>
+        <span class="gradient-text">Vibe</span>
+      </h1>
+      <p>
+        Choose your current mood to chat with people who feel the same way
+      </p>
+      <button id="enterChatBtn" class="primary-btn" disabled>
+        <span>Enter Chat Room</span>
+        <span>→</span>
+      </button>
+      <div class="helper-text">Select a mood card below first</div>
+    </div>
+ 
+    <div id="moodsGrid" class="moods-grid animate-fade-in-up" style="animation-delay: 0.1s">
+      <!-- Moods will be loaded here -->
+    </div>
+ 
+    <div class="context-section">
+      <div class="context-header">
+        <span class="context-icon">✍️</span>
+        <span class="context-label">Add Public NOTE (Optional)</span>
+      </div>
+      <textarea id="noteText" class="context-textarea" rows="3" maxlength="500"
+        placeholder="Briefly describe why you are feeling Calm... This helps match you with better conversations."></textarea>
+      <div class="context-footer">
+        <span class="privacy-badge">
+          <span>🌐 Global</span>
+        </span>
+        <button id="logMoodBtn" disabled class="secondary-btn">
+          <span class="material-symbols-outlined">edit</span>
+          <span>Log Mood</span>
+        </button>
+      </div>
+    </div>
+ 
+    <div class="sessions-section">
+      <div class="sessions-header">
+        <h2 class="sessions-title">Public Notes</h2>
+        <span class="view-all-link" style="cursor: default; opacity: 0.6;">
+          <span>Scroll for more</span>
+          <span>↓</span>
+        </span>
+      </div>
+      <div id="notesList" class="sessions-grid"></div>
+      <div id="loading" class="hidden" style="text-align: center; padding: 32px;">
+        <div class="loading-spinner" style="margin: 0 auto;"></div>
+      </div>
+    </div>
+  </main>
+ 
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span>✦</span>
+        <span>© 2026 Vibegra</span>
+      </div>
+      <div class="footer-links">
+        <button type="button" id="contactSupportBtn">Contact</button>
+        <a href="vibegra-privacy-policy.html">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="/env-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+
+  <!-- Socket.IO Client -->
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+
+  <!-- Load app.js -->
+  <script src="app.js"></script>
+
+  <script src="/pwa-install.js"></script>
+
+  <script src="/social-club.js?v=20260222"></script>
+
+  <script src="/mood.js"></script>
+</body>
+
+</html>

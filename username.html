@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Username - Vibegra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2dd4bf",
+                        "primary-hover": "#14b8a6",
+                        "accent": "#6366f1",
+                        "dark-bg": "#050505",
+                        "dark-surface": "#0f1115",
+                        "glass-border": "rgba(255, 255, 255, 0.06)",
+                        "glass-surface": "rgba(20, 22, 27, 0.7)",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'metallic': 'linear-gradient(145deg, #1a1d23, #0f1115)',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 25px -5px rgba(45, 212, 191, 0.15)',
+                        'card': '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                        'inner-light': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="relative flex min-h-screen w-full flex-col bg-dark-bg text-white font-display overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+
+    <div id="contactSupportModal" class="fixed inset-0 z-[70] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-close="1"></div>
+        <div class="relative w-[92vw] max-w-md rounded-2xl bg-[#0f1115]/95 border border-white/10 shadow-2xl p-6">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold tracking-tight text-white">Contact support</h3>
+                    <p class="mt-1 text-sm text-gray-400">Email us and we’ll get back to you.</p>
+                </div>
+                <button type="button" class="text-gray-400 hover:text-white transition-colors" data-close="1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="mt-5 flex items-center gap-2 rounded-xl bg-black/30 border border-white/10 px-4 py-3">
+                <span class="text-sm font-semibold text-white select-all" id="contactSupportEmail">contact@vibegra.com</span>
+                <button id="contactSupportCopyBtn" type="button" class="ml-auto inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-2 text-xs font-semibold text-white/80 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                </button>
+            </div>
+            <p id="contactSupportCopyHint" class="mt-2 text-xs text-gray-500 hidden">Copied</p>
+        </div>
+    </div>
+    <!-- Animated Background -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#121418] via-[#050505] to-[#08090b]"></div>
+        <div class="absolute -top-[20%] left-[10%] w-[50vw] h-[50vw] bg-primary/5 rounded-full blur-[120px] opacity-40"></div>
+        <div class="absolute top-[40%] -right-[10%] w-[40vw] h-[40vw] bg-accent/5 rounded-full blur-[100px] opacity-30"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDI1Ii8+Cjwvc3ZnPg==')] opacity-20"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="relative z-10 flex items-center justify-between px-6 py-6 md:px-12 lg:px-40 border-b border-white/5 bg-dark-bg/50 backdrop-blur-sm">
+        <div class="flex items-center gap-3">
+            <div class="size-8 text-primary flex items-center justify-center drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]">
+                <svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-white/90">Vibegra</h2>
+        </div>
+        <div class="hidden md:flex items-center gap-3 text-sm font-medium text-gray-500">
+            <span class="hover:text-gray-300 transition-colors cursor-pointer">Account</span>
+            <span class="material-symbols-outlined text-[16px] text-gray-600">chevron_right</span>
+            <span class="text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.3)]">Profile</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex flex-1 flex-col justify-center items-center px-4 py-12 md:py-16">
+        <div class="w-full max-w-[560px]">
+            <!-- Header Text -->
+            <div class="mb-10 text-center md:text-left">
+                <div class="mb-6 flex justify-center md:justify-start">
+                    <button id="contactSupportBtn" type="button" class="group inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-2 text-xs font-semibold text-white/80 backdrop-blur-md transition-colors">
+                        <span class="material-symbols-outlined text-[18px] text-white/80">support_agent</span>
+                        <span>Contact</span>
+                    </button>
+                </div>
+                <div class="inline-flex items-center justify-center size-14 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent text-primary mb-6 shadow-glow ring-1 ring-primary/20 backdrop-blur-md">
+                    <span class="material-symbols-outlined text-[28px]">alternate_email</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold leading-tight tracking-tight text-white mb-3 drop-shadow-lg">
+                    Choose a unique username
+                </h1>
+                <p class="text-gray-400 text-lg leading-relaxed font-light tracking-wide max-w-md">
+                    Pick a username to connect with friends and start your mood logging journey
+                </p>
+            </div>
+
+            <!-- Card -->
+            <div class="relative bg-glass-surface backdrop-blur-xl rounded-2xl border border-glass-border shadow-card p-8 md:p-12 overflow-hidden group/card">
+                <div class="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                
+                <!-- Form -->
+                <form id="usernameForm" class="relative z-10 flex flex-col gap-6">
+                    <!-- Username Input -->
+                    <div class="relative group/input">
+                        <label for="username" class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Username</label>
+                        <div class="relative flex items-center">
+                            <span class="absolute left-4 text-gray-500 font-semibold text-lg select-none">@</span>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                class="block w-full rounded-xl border border-white/10 bg-[#0a0c0f] text-white h-14 pl-10 pr-12 text-base font-medium focus:border-primary/50 focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all placeholder-gray-600"
+                                placeholder="your_username"
+                                maxlength="20" 
+                                autocomplete="off"
+                            >
+                            <div id="statusIcon" class="absolute right-4 hidden"></div>
+                        </div>
+                        <div id="feedback" class="mt-3"></div>
+                    </div>
+
+                    <!-- Guidelines Box -->
+                    <div class="bg-[#0a0c0f] rounded-xl p-5 border border-white/5">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Guidelines</h4>
+                        <ul class="space-y-2.5">
+                            <li class="flex items-center gap-3 text-sm text-gray-400">
+                                <span class="size-1.5 rounded-full bg-primary/60"></span>
+                                3-20 characters in length
+                            </li>
+                            <li class="flex items-center gap-3 text-sm text-gray-400">
+                                <span class="size-1.5 rounded-full bg-primary/60"></span>
+                                Letters, numbers, underscores, and hyphens only
+                            </li>
+                            <li class="flex items-center gap-3 text-sm text-gray-400">
+                                <span class="size-1.5 rounded-full bg-primary/60"></span>
+                                Must be unique across the platform
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-2">
+                        <button 
+                            type="submit" 
+                            id="submitBtn" 
+                            disabled
+                            class="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary via-teal-300 to-primary text-slate-900 shadow-[0_0_25px_-5px_rgba(45,212,191,0.25)] hover:shadow-[0_0_35px_-5px_rgba(45,212,191,0.4)] transition-all duration-300 h-14 flex items-center justify-center gap-2 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span class="font-bold text-base tracking-wide z-10">Confirm Username</span>
+                            <span class="material-symbols-outlined transition-transform duration-300 group-hover/btn:translate-x-1 z-10">arrow_forward</span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out"></div>
+                        </button>
+                        <p class="mt-4 text-center text-sm text-gray-500">
+                            You can change this later in settings
+                        </p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="mt-8 flex justify-center gap-8">
+                <a href="vibegra-privacy-policy.html" class="text-xs font-medium text-gray-600 hover:text-primary transition-colors flex items-center gap-1.5 uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-[14px]">help</span>
+                    Help Center
+                </a>
+                <a href="vibegra-privacy-policy.html" class="text-xs font-medium text-gray-600 hover:text-primary transition-colors flex items-center gap-1.5 uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-[14px]">security</span>
+                    Privacy Policy
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/env-config.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+        (function () {
+            const MoodApp = window.MoodApp || {};
+            const _Auth = MoodApp.Auth;
+            const _API = MoodApp.API;
+            const _Toast = MoodApp.Toast;
+            const _Loading = MoodApp.Loading;
+            const _PageTransition = MoodApp.PageTransition;
+
+            try {
+                if (!firebase.apps?.length) {
+                    firebase.initializeApp(window.__VIBE_FIREBASE_CONFIG__);
+                }
+            } catch (error) {
+                console.error('Firebase init error:', error);
+            }
+
+            const toastError = (msg) => {
+                if (_Toast && typeof _Toast.error === 'function') _Toast.error(msg);
+                else console.error('Toast.error:', msg);
+            };
+            const toastSuccess = (msg) => {
+                if (_Toast && typeof _Toast.success === 'function') _Toast.success(msg);
+                else console.log('Toast.success:', msg);
+            };
+
+            const ensureLoadingPopup = () => {
+                let el = document.getElementById('usernameLoadingPopup');
+                if (el) return el;
+                el = document.createElement('div');
+                el.id = 'usernameLoadingPopup';
+                el.className = 'fixed inset-0 z-[9999] hidden items-center justify-center';
+                el.innerHTML = `
+                  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+                  <div class="relative w-[92vw] max-w-sm rounded-2xl bg-[#0f1115]/95 border border-white/10 shadow-2xl p-6">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full border-2 border-primary/30 border-t-primary" style="animation: spin 1s linear infinite;"></div>
+                      <div>
+                        <div class="text-base font-bold text-white">Saving…</div>
+                        <div id="usernameLoadingText" class="mt-1 text-sm text-gray-400">Setting up your profile…</div>
+                      </div>
+                    </div>
+                  </div>
+                `;
+                document.body.appendChild(el);
+                return el;
+            };
+
+            const loadingShow = (msg) => {
+                try {
+                    if (_Loading && typeof _Loading.show === 'function') _Loading.show(msg);
+                } catch { }
+                const el = ensureLoadingPopup();
+                const t = el.querySelector('#usernameLoadingText');
+                if (t && msg) t.textContent = msg;
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            };
+            const loadingHide = () => {
+                try {
+                    if (_Loading && typeof _Loading.hide === 'function') _Loading.hide();
+                } catch { }
+                const el = document.getElementById('usernameLoadingPopup');
+                if (!el) return;
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            };
+
+            const debounce = (fn, wait = 300) => {
+                let timer = null;
+                return function (...args) {
+                    if (timer) clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), wait);
+                };
+            };
+
+            const isValidUsername = (u) => {
+                if (!u || typeof u !== 'string') return false;
+                const trimmed = u.trim();
+                return /^[a-zA-Z0-9_-]{3,20}$/.test(trimmed);
+            };
+
+            const usernameInput = document.getElementById('username');
+            const submitBtn = document.getElementById('submitBtn');
+            const statusIcon = document.getElementById('statusIcon');
+            const feedback = document.getElementById('feedback');
+            const usernameForm = document.getElementById('usernameForm');
+
+            try {
+                if (_Auth && typeof _Auth.requireAuth === 'function') {
+                    _Auth.requireAuth();
+                }
+            } catch (err) {
+                console.error('Error calling Auth.requireAuth():', err);
+            }
+
+            function showFeedback(type, message) {
+                if (!feedback) return;
+                const color = type === 'success' ? 'emerald' : 'red';
+                const icon = type === 'success' ? '✓' : '✗';
+                feedback.innerHTML = `
+                    <div class="flex items-start gap-2 px-1">
+                        <span class="text-${color}-400 text-[18px] shrink-0">${icon}</span>
+                        <p class="text-sm font-medium text-${color}-400 leading-normal">${message}</p>
+                    </div>
+                `;
+            }
+
+            const hideStatusIcon = () => {
+                if (!statusIcon) return;
+                statusIcon.classList.add('hidden');
+                statusIcon.innerHTML = '';
+            };
+
+            const showSpinner = () => {
+                if (!statusIcon) return;
+                statusIcon.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border-width:2px;border-radius:9999px;border-style:solid;border-color:#6b7280;border-top-color:transparent;animation:spin 1s linear infinite"></div>';
+                statusIcon.classList.remove('hidden');
+            };
+
+            let isAvailable = false;
+            let lastCheckedUsername = '';
+
+            const getApiBaseUrl = () => {
+                try {
+                    const { hostname, port } = window.location;
+                    if ((hostname === '127.0.0.1' || hostname === 'localhost') && port === '5500') {
+                        return 'http://localhost:3000';
+                    }
+                } catch {}
+                return window.location.origin;
+            };
+
+            const API_BASE_URL = getApiBaseUrl();
+
+            const checkUsername = debounce(async (username) => {
+                if (!isValidUsername(username)) {
+                    showFeedback('error', 'Username must be 3-20 characters: letters, numbers, underscores, hyphens');
+                    isAvailable = false;
+                    if (submitBtn) submitBtn.disabled = true;
+                    hideStatusIcon();
+                    return;
+                }
+
+                if (lastCheckedUsername === username && isAvailable) {
+                    return;
+                }
+
+                lastCheckedUsername = username;
+                showSpinner();
+                if (feedback) feedback.innerHTML = '';
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                try {
+                    console.log('Checking username availability:', username);
+                    
+                    const response = await fetch(`${API_BASE_URL}/api/check-username`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username }),
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('Username check result:', result);
+
+                    if (result && result.available) {
+                        isAvailable = true;
+                        if (submitBtn) submitBtn.disabled = false;
+                        statusIcon.innerHTML = '<span class="text-emerald-400 text-2xl">✓</span>';
+                        statusIcon.classList.remove('hidden');
+                        showFeedback('success', `Excellent! <strong>@${username}</strong> is available`);
+                    } else {
+                        isAvailable = false;
+                        if (submitBtn) submitBtn.disabled = true;
+                        statusIcon.innerHTML = '<span class="text-red-400 text-2xl">✗</span>';
+                        statusIcon.classList.remove('hidden');
+
+                        let suggestionsHtml = '';
+                        if (result && Array.isArray(result.suggestions) && result.suggestions.length) {
+                            suggestionsHtml = `<br><small>Try: ${result.suggestions.map(s => `<strong>@${s}</strong>`).join(', ')}</small>`;
+                        }
+                        showFeedback('error', `Username taken${suggestionsHtml}`);
+                    }
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    console.error('Error checking username:', error);
+                    
+                    hideStatusIcon();
+                    
+                    if (error.name === 'AbortError') {
+                        showFeedback('error', 'Request timeout. Please try again.');
+                    } else {
+                        showFeedback('error', 'Unable to check availability. Please try again.');
+                    }
+                    
+                    isAvailable = false;
+                    if (submitBtn) submitBtn.disabled = true;
+                }
+            }, 500);
+
+            if (usernameInput) {
+                usernameInput.addEventListener('input', (e) => {
+                    const username = (e.target.value || '').trim().toLowerCase();
+
+                    if (!username) {
+                        hideStatusIcon();
+                        if (feedback) feedback.innerHTML = '';
+                        if (submitBtn) submitBtn.disabled = true;
+                        isAvailable = false;
+                        lastCheckedUsername = '';
+                        return;
+                    }
+
+                    if (!isValidUsername(username)) {
+                        hideStatusIcon();
+                        showFeedback('error', 'Only letters, numbers, underscores, and hyphens allowed');
+                        if (submitBtn) submitBtn.disabled = true;
+                        isAvailable = false;
+                        return;
+                    }
+
+                    checkUsername(username);
+                });
+            }
+
+            if (usernameForm) {
+                usernameForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const username = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
+
+                    console.log('Form submitted with username:', username, 'isAvailable:', isAvailable);
+
+                    if (!username || !isValidUsername(username)) {
+                        toastError('Please enter a valid username');
+                        return;
+                    }
+
+                    if (!isAvailable) {
+                        toastError('Please choose an available username');
+                        return;
+                    }
+
+                    loadingShow('Setting up your profile...');
+
+                    try {
+                        let result;
+                        
+                        if (_API && typeof _API.post === 'function') {
+                            result = await _API.post('/api/users/profile', { username });
+                        } else {
+                            const user = firebase.auth().currentUser;
+                            if (!user) {
+                                throw new Error('Not authenticated');
+                            }
+                            
+                            const token = await user.getIdToken();
+                            
+                            const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ username })
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(`Failed to save username: ${response.status}`);
+                            }
+
+                            result = await response.json();
+                        }
+
+                        console.log('Profile save result:', result);
+
+                        try {
+                            localStorage.setItem('moodapp_username', username);
+                        } catch (err) {
+                            console.warn('Could not save to localStorage:', err);
+                        }
+
+                        loadingHide();
+                        toastSuccess('Username saved!');
+
+                        setTimeout(() => {
+                            if (_PageTransition && typeof _PageTransition.navigateTo === 'function') {
+                                _PageTransition.navigateTo('/profile-picture.html');
+                            } else {
+                                window.location.href = '/profile-picture.html';
+                            }
+                        }, 1000);
+                    } catch (error) {
+                        loadingHide();
+                        console.error('Failed to save username:', error);
+                        toastError(error && error.message ? error.message : 'Failed to save username. Please try again.');
+                    }
+                });
+            }
+        })();
+    </script>
+    <script>
+        (function () {
+            const btn = document.getElementById('contactSupportBtn');
+            const modal = document.getElementById('contactSupportModal');
+            const copyBtn = document.getElementById('contactSupportCopyBtn');
+            const emailEl = document.getElementById('contactSupportEmail');
+            const hint = document.getElementById('contactSupportCopyHint');
+            if (!btn || !modal || !copyBtn || !emailEl) return;
+
+            const open = () => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            };
+            const close = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                if (hint) hint.classList.add('hidden');
+            };
+
+            btn.addEventListener('click', open);
+            modal.addEventListener('click', (e) => {
+                const t = e.target;
+                if (t && t.closest && t.closest('[data-close="1"]')) close();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') close();
+            });
+
+            copyBtn.addEventListener('click', async () => {
+                const text = emailEl.textContent || 'contact@vibegra.com';
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
+                    if (hint) {
+                        hint.classList.remove('hidden');
+                        setTimeout(() => hint.classList.add('hidden'), 1200);
+                    }
+                } catch { }
+            });
+        })();
+    </script>
+</body>
+</html>

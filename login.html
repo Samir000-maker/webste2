@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Vibegra</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        (function () {
+            try {
+                if (window.__VIBE_SILENCE_CONSOLE__) return;
+                window.__VIBE_SILENCE_CONSOLE__ = true;
+                const noop = function () { };
+                console.log = noop;
+                console.info = noop;
+                console.warn = noop;
+                console.error = noop;
+                console.debug = noop;
+            } catch { }
+        })();
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2dd4bf", // Teal 400
+                        secondary: "#0f766e", // Teal 700
+                        dark: {
+                            900: "#020617", // Slate 950
+                            800: "#0f172a", // Slate 900
+                            700: "#1e293b", // Slate 800
+                        }
+                    },
+                    fontFamily: {
+                        display: ["Manrope", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'glow': '0 0 40px -10px rgba(45, 212, 191, 0.3)',
+                        'glass': '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                        'input-focus': '0 0 0 4px rgba(45, 212, 191, 0.1)',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 1s infinite',
+                        'fadeIn': 'fadeIn 0.3s ease-in-out',
+                        'slideIn': 'slideIn 0.3s ease-out',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-card {
+                @apply bg-slate-900/40 backdrop-blur-2xl border border-white/10;
+            }
+            .glass-input {
+                @apply bg-slate-950/50 border border-white/10 focus:border-primary/50 placeholder-slate-500 text-slate-100;
+            }
+            .text-glow {
+                text-shadow: 0 0 20px rgba(45, 212, 191, 0.3);
+            }
+            .modal-backdrop {
+                @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden;
+            }
+            .modal-backdrop.active {
+                @apply flex items-center justify-center animate-fadeIn;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark-900 font-display min-h-screen flex flex-col text-slate-200 selection:bg-teal-500/30 overflow-x-hidden relative">
+
+    <div id="contactSupportModal" class="fixed inset-0 z-[70] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-close="1"></div>
+        <div class="relative w-[92vw] max-w-md rounded-2xl bg-slate-900/90 border border-white/10 shadow-2xl p-6">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold tracking-tight text-white">Contact support</h3>
+                    <p class="mt-1 text-sm text-slate-400">Email us and we’ll get back to you.</p>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-white transition-colors" data-close="1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="mt-5 flex items-center gap-2 rounded-xl bg-black/30 border border-white/10 px-4 py-3">
+                <span class="text-sm font-semibold text-white select-all" id="contactSupportEmail">contact@vibegra.com</span>
+                <button id="contactSupportCopyBtn" type="button" class="ml-auto inline-flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-2 text-xs font-semibold text-white/80 transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                </button>
+            </div>
+            <p id="contactSupportCopyHint" class="mt-2 text-xs text-slate-500 hidden">Copied</p>
+        </div>
+    </div>
+    <!-- Animated Background -->
+    <div class="fixed inset-0 pointer-events-none -z-10">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#050b1a] to-black"></div>
+        <div class="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] mix-blend-screen"></div>
+        <div class="absolute top-[40%] left-[20%] w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-[80px] mix-blend-screen"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="w-full border-b border-white/5 bg-[#020617]/70 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 hover:opacity-90 transition-opacity group">
+                <div class="size-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 text-primary shadow-lg shadow-teal-900/20 group-hover:shadow-teal-500/20 transition-all duration-300">
+                    <span class="material-symbols-outlined text-[26px]">mood</span>
+                </div>
+                <h2 class="text-xl font-bold tracking-tight text-white group-hover:text-primary transition-colors">Login</h2>
+            </a>
+            <nav class="hidden md:flex items-center gap-8"></nav>
+            <div class="flex items-center gap-4">
+                <a href="/signup.html" class="text-sm font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Sign Up</a>
+                <button class="sm:hidden text-white"><span class="material-symbols-outlined">menu</span></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-6 relative w-full">
+        <div class="w-full max-w-[440px]">
+            <!-- Login Card -->
+            <div class="glass-card rounded-2xl p-8 md:p-10 relative overflow-hidden shadow-glass group hover:border-white/20 transition-all duration-500">
+                <!-- Card Glow Effect -->
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-teal-500/10 rounded-full blur-[60px] pointer-events-none group-hover:bg-teal-400/20 transition-colors duration-700"></div>
+                
+                <!-- Header -->
+                <div class="mb-10 text-center relative z-10">
+                    <div class="inline-flex items-center justify-center size-14 rounded-full bg-gradient-to-b from-white/5 to-transparent border border-white/10 text-primary mb-6 shadow-[0_0_15px_rgba(45,212,191,0.15)] group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-symbols-outlined text-[26px]">lock_open</span>
+                    </div>
+                    <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">Welcome Back</h1>
+                    <p class="text-slate-400 text-sm font-medium">Enter your credentials to access your space.</p>
+                </div>
+
+                <!-- Form -->
+                <form id="loginForm" class="flex flex-col gap-5 relative z-10">
+                    <!-- Email Field -->
+                    <div class="space-y-1.5">
+                        <label for="email" class="text-xs font-bold text-slate-300 uppercase tracking-wider ml-1">Email Address</label>
+                        <div class="relative group/input">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within/input:text-primary transition-colors duration-300">
+                                <span class="material-symbols-outlined text-[20px]">mail</span>
+                            </div>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                required
+                                class="w-full h-12 pl-11 pr-4 rounded-xl glass-input focus:bg-slate-900/80 focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all duration-300 text-sm"
+                                placeholder="name@example.com"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center ml-1">
+                            <label for="password" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Password</label>
+                            <a href="#" id="forgotPasswordLink" class="text-xs font-medium text-primary hover:text-teal-300 transition-colors">Forgot Password?</a>
+                        </div>
+                        <div class="relative group/input">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within/input:text-primary transition-colors duration-300">
+                                <span class="material-symbols-outlined text-[20px]">lock</span>
+                            </div>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                required
+                                class="w-full h-12 pl-11 pr-11 rounded-xl glass-input focus:bg-slate-900/80 focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all duration-300 text-sm"
+                                placeholder="••••••••"
+                            >
+                            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-primary transition-colors duration-300 focus:outline-none">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit"
+                        class="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-teal-400 text-slate-950 font-bold text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(45,212,191,0.3)] hover:shadow-[0_0_30px_rgba(45,212,191,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/30 mt-3"
+                    >
+                        Sign In
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-4 my-8 relative z-10">
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    <span class="text-xs text-slate-500 font-medium uppercase tracking-wider">Or continue with</span>
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                </div>
+
+                <!-- Google Sign In -->
+                <button 
+                    type="button"
+                    id="googleSignIn"
+                    class="w-full h-12 rounded-xl glass-card hover:bg-slate-800/50 border-white/20 flex items-center justify-center gap-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-primary/10 relative z-10 group/google"
+                >
+                    <svg class="w-5 h-5 group-hover/google:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
+                        <path fill="#EA4335" d="M5.26620003,9.76452941 C6.19878754,6.93863203 8.85444915,4.90909091 12,4.90909091 C13.6909091,4.90909091 15.2181818,5.50909091 16.4181818,6.49090909 L19.9090909,3 C17.7818182,1.14545455 15.0545455,0 12,0 C7.27006974,0 3.1977497,2.69829785 1.23999023,6.65002441 L5.26620003,9.76452941 Z"/>
+                        <path fill="#34A853" d="M16.0407269,18.0125889 C14.9509167,18.7163016 13.5660892,19.0909091 12,19.0909091 C8.86648613,19.0909091 6.21911939,17.076871 5.27698177,14.2678769 L1.23746264,17.3349879 C3.19279051,21.2936293 7.26500293,24 12,24 C14.9328362,24 17.7353462,22.9573905 19.834192,20.9995801 L16.0407269,18.0125889 Z"/>
+                        <path fill="#4A90E2" d="M19.834192,20.9995801 C22.0291676,18.9520994 23.4545455,15.903663 23.4545455,12 C23.4545455,11.2909091 23.3454545,10.5818182 23.1818182,9.90909091 L12,9.90909091 L12,14.4545455 L18.4363636,14.4545455 C18.1187732,16.013626 17.2662994,17.2212117 16.0407269,18.0125889 L19.834192,20.9995801 Z"/>
+                        <path fill="#FBBC05" d="M5.27698177,14.2678769 C5.03832634,13.556323 4.90909091,12.7937589 4.90909091,12 C4.90909091,11.2182781 5.03443647,10.4668121 5.26620003,9.76452941 L1.23999023,6.65002441 C0.43658717,8.26043162 0,10.0753848 0,12 C0,13.9195484 0.444780743,15.7301709 1.23746264,17.3349879 L5.27698177,14.2678769 Z"/>
+                    </svg>
+                    <span>Sign in with Google</span>
+                </button>
+
+                <button
+                    type="button"
+                    id="guestSignIn"
+                    class="mt-3 w-full h-12 rounded-xl glass-card hover:bg-slate-800/50 border-white/20 flex items-center justify-center gap-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-primary/10 relative z-10 group/guest"
+                >
+                    <span class="material-symbols-outlined text-[22px] text-primary group-hover/guest:scale-110 transition-transform duration-300">person</span>
+                    <span>Continue as Guest</span>
+                </button>
+
+                <!-- Sign Up Link -->
+                <p class="mt-8 text-center text-sm text-slate-400 relative z-10">
+                    Don't have an account? 
+                    <a href="/signup.html" class="text-primary font-semibold hover:text-teal-300 transition-colors ml-1">Sign Up</a>
+                </p>
+                <div class="mt-4 flex justify-center relative z-10">
+                    <button id="contactSupportBtn" type="button" class="group inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-2 text-xs font-semibold text-white/80 backdrop-blur-md transition-colors">
+                        <span class="material-symbols-outlined text-[18px] text-white/80">support_agent</span>
+                        <span>Contact</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal-backdrop">
+        <div class="glass-card rounded-2xl p-8 max-w-md w-full mx-4 shadow-glass animate-slideIn">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white">Reset Password</h2>
+                <button id="closeModal" class="text-slate-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[24px]">close</span>
+                </button>
+            </div>
+            
+            <p class="text-slate-400 text-sm mb-6">
+                Enter your email address and we'll send you instructions to reset your password.
+            </p>
+
+            <form id="forgotPasswordForm" class="space-y-5">
+                <div class="space-y-1.5">
+                    <label for="resetEmail" class="text-xs font-bold text-slate-300 uppercase tracking-wider ml-1">Email Address</label>
+                    <div class="relative group/input">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within/input:text-primary transition-colors duration-300">
+                            <span class="material-symbols-outlined text-[20px]">mail</span>
+                        </div>
+                        <input 
+                            type="email" 
+                            id="resetEmail" 
+                            required
+                            class="w-full h-12 pl-11 pr-4 rounded-xl glass-input focus:bg-slate-900/80 focus:ring-4 focus:ring-primary/10 focus:outline-none transition-all duration-300 text-sm"
+                            placeholder="name@example.com"
+                        >
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button 
+                        type="button"
+                        id="cancelReset"
+                        class="flex-1 h-12 rounded-xl glass-card hover:bg-slate-800/50 border-white/20 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-white/10"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit"
+                        class="flex-1 h-12 rounded-xl bg-gradient-to-r from-primary to-teal-400 text-slate-950 font-bold text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(45,212,191,0.3)] hover:shadow-[0_0_30px_rgba(45,212,191,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/30"
+                    >
+                        Send Reset Link
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-24 right-6 z-[60] flex flex-col gap-3 max-w-sm"></div>
+
+    <script src="/env-config.js"></script>
+
+    <script>
+        if (!firebase.apps.length) {
+            firebase.initializeApp(window.__VIBE_FIREBASE_CONFIG__);
+        }
+
+        // Toast notification system
+        const Toast = {
+            show: function(message, type = 'info', duration = 4000) {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                
+                const icons = {
+                    success: 'check_circle',
+                    error: 'error',
+                    info: 'info',
+                    warning: 'warning'
+                };
+
+                const colors = {
+                    success: 'from-green-500 to-emerald-500',
+                    error: 'from-red-500 to-rose-500',
+                    info: 'from-blue-500 to-cyan-500',
+                    warning: 'from-yellow-500 to-orange-500'
+                };
+
+                toast.className = `glass-card p-4 rounded-xl shadow-lg flex items-center gap-3 animate-slideIn min-w-[300px]`;
+                toast.innerHTML = `
+                    <div class="flex items-center justify-center size-10 rounded-lg bg-gradient-to-br ${colors[type]} flex-shrink-0">
+                        <span class="material-symbols-outlined text-white text-[20px]">${icons[type]}</span>
+                    </div>
+                    <p class="text-sm font-medium text-white flex-1">${message}</p>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">close</span>
+                    </button>
+                `;
+
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    toast.style.transition = 'all 0.3s ease-out';
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            },
+            success: function(message, duration) { this.show(message, 'success', duration); },
+            error: function(message, duration) { this.show(message, 'error', duration); },
+            info: function(message, duration) { this.show(message, 'info', duration); },
+            warning: function(message, duration) { this.show(message, 'warning', duration); }
+        };
+
+        // Loading overlay system
+        const Loading = {
+            overlay: null,
+            show: function(message = 'Loading...') {
+                if (!this.overlay) {
+                    this.overlay = document.createElement('div');
+                    this.overlay.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center';
+                    this.overlay.innerHTML = `
+                        <div class="glass-card p-8 rounded-2xl flex flex-col items-center gap-4 min-w-[200px]">
+                            <div class="relative">
+                                <div class="size-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                            </div>
+                            <p class="text-sm font-medium text-white loading-message">${message}</p>
+                        </div>
+                    `;
+                }
+                document.body.appendChild(this.overlay);
+            },
+            hide: function() {
+                if (this.overlay && this.overlay.parentNode) {
+                    this.overlay.remove();
+                }
+            }
+        };
+
+        // Email validator
+        const Validator = {
+            isValidEmail: function(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+        };
+
+        // Firebase error messages
+        const getFirebaseErrorMessage = (errorCode) => {
+            const errorMessages = {
+                'auth/invalid-email': 'Invalid email address format.',
+                'auth/user-disabled': 'This account has been disabled.',
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password.',
+                'auth/invalid-credential': 'Invalid email or password.',
+                'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+                'auth/network-request-failed': 'Network error. Please check your connection.',
+                'auth/popup-blocked': 'Popup was blocked. Please allow popups for this site.',
+                'auth/popup-closed-by-user': 'Sign-in popup was closed.',
+                'auth/cancelled-popup-request': 'Only one popup request is allowed at a time.',
+                'auth/expired-action-code': 'The reset link has expired. Please request a new one.',
+                'auth/invalid-action-code': 'The reset link is invalid. Please request a new one.',
+            };
+            return errorMessages[errorCode] || 'An error occurred. Please try again.';
+        };
+
+        // Global variables
+        let isGoogleSignInInProgress = false;
+        let isGuestSignInInProgress = false;
+        const _Toast = Toast;
+        const _Loading = Loading;
+        const _Validator = Validator;
+
+        // Password toggle functionality
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function() {
+                const icon = this.querySelector('span');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.textContent = 'visibility_off';
+                } else {
+                    passwordInput.type = 'password';
+                    icon.textContent = 'visibility';
+                }
+            });
+        }
+
+        // Forgot Password Modal functionality
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const closeModal = document.getElementById('closeModal');
+        const cancelReset = document.getElementById('cancelReset');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+
+        const openModal = () => {
+            forgotPasswordModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeModalFunc = () => {
+            forgotPasswordModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            document.getElementById('resetEmail').value = '';
+        };
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+        });
+
+        closeModal.addEventListener('click', closeModalFunc);
+        cancelReset.addEventListener('click', closeModalFunc);
+
+        // Close modal when clicking outside
+        forgotPasswordModal.addEventListener('click', (e) => {
+            if (e.target === forgotPasswordModal) {
+                closeModalFunc();
+            }
+        });
+
+        // Forgot Password Form submission
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('resetEmail').value.trim();
+
+            if (!Validator.isValidEmail(email)) {
+                Toast.error('Please enter a valid email address');
+                return;
+            }
+
+            Loading.show('Sending reset link...');
+
+            try {
+                // Send password reset email using Firebase
+                await firebase.auth().sendPasswordResetEmail(email);
+                
+                Loading.hide();
+                closeModalFunc();
+                Toast.success('Password reset link sent! Check your email.', 5000);
+            } catch (error) {
+                Loading.hide();
+                console.error('Password reset error:', error);
+                const errorMessage = getFirebaseErrorMessage(error.code);
+                Toast.error(errorMessage);
+            }
+        });
+
+        // Main authentication logic
+        (function() {
+            // Check if user is already signed in
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user && !isGoogleSignInInProgress && !isGuestSignInInProgress) {
+                    try {
+                        const idToken = await user.getIdToken();
+                        
+                        // Check if profile exists
+                        const apiBaseUrl = getApiBaseUrl();
+                        const response = await fetch(`${apiBaseUrl}/api/users/check-profile`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${idToken}`
+                            }
+                        });
+
+                        const text = await response.text();
+                        let data = null;
+                        try { data = text ? JSON.parse(text) : null; } catch { }
+
+                        if (!response.ok || (data && (data.error === 'User not found' || data.message === 'User not found'))) {
+                            Toast.error('Account not found. Please sign up or continue as guest.');
+                            try { await firebase.auth().signOut(); } catch { }
+                            return;
+                        }
+
+                        if (data && data.exists && data.hasUsername) {
+                            if (typeof _PageTransition !== 'undefined' && typeof _PageTransition.navigateTo === 'function') {
+                                _PageTransition.navigateTo('/mood.html');
+                            } else {
+                                window.location.href = '/mood.html';
+                            }
+                        } else {
+                            if (typeof _PageTransition !== 'undefined' && typeof _PageTransition.navigateTo === 'function') {
+                                _PageTransition.navigateTo('/username.html');
+                            } else {
+                                window.location.href = '/username.html';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error checking profile:', error);
+                    }
+                }
+            });
+
+            const getApiBaseUrl = () => {
+                if (typeof _API !== 'undefined' && typeof _API.BASE_URL !== 'undefined') {
+                    return _API.BASE_URL;
+                }
+                try {
+                    const { hostname, port } = window.location;
+                    if ((hostname === '127.0.0.1' || hostname === 'localhost') && port === '5500') {
+                        return 'http://localhost:3000';
+                    }
+                } catch {}
+                return window.location.origin;
+            };
+
+            // Login form submission
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const email = document.getElementById('email').value.trim();
+                    const password = document.getElementById('password').value;
+
+                    if (!Validator.isValidEmail(email)) {
+                        Toast.error('Please enter a valid email address');
+                        return;
+                    }
+
+                    if (!password) {
+                        Toast.error('Please enter your password');
+                        return;
+                    }
+
+                    Loading.show('Signing in...');
+
+                    try {
+                        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                        const idToken = await userCredential.user.getIdToken();
+
+                        const apiBaseUrl = getApiBaseUrl();
+                        const checkRes = await fetch(`${apiBaseUrl}/api/users/check-profile`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${idToken}`
+                            }
+                        });
+
+                        const checkText = await checkRes.text();
+                        let checkData = null;
+                        try { checkData = checkText ? JSON.parse(checkText) : null; } catch { }
+
+                        if (!checkRes.ok || (checkData && (checkData.error === 'User not found' || checkData.message === 'User not found'))) {
+                            Loading.hide();
+                            Toast.error('Account not found. Please sign up or continue as guest.');
+                            try { await firebase.auth().signOut(); } catch { }
+                            return;
+                        }
+
+                        // Set auth if function exists
+                        if (typeof _Auth !== 'undefined' && typeof _Auth.setAuth === 'function') {
+                            _Auth.setAuth(idToken, { email, uid: userCredential.user.uid });
+                        }
+
+                        Loading.hide();
+                        Toast.success('Welcome back!');
+
+                        // Navigate based on profile state
+                        setTimeout(() => {
+                            const hasProfile = !!(checkData && checkData.exists);
+                            const hasUsername = !!(checkData && checkData.hasUsername);
+                            const target = (hasProfile && hasUsername) ? '/mood.html' : '/username.html';
+
+                            if (typeof _PageTransition !== 'undefined' && typeof _PageTransition.navigateTo === 'function') {
+                                _PageTransition.navigateTo(target);
+                            } else {
+                                window.location.href = target;
+                            }
+                        }, 900);
+                    } catch (error) {
+                        Loading.hide();
+                        console.error('Login error:', error);
+                        const errorMessage = getFirebaseErrorMessage(error.code);
+                        Toast.error(errorMessage);
+                    }
+                });
+            }
+
+            // Google Sign In
+            const googleBtn = document.getElementById('googleSignIn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', async () => {
+                    isGoogleSignInInProgress = true;
+                    Loading.show('Signing in with Google...');
+
+                    try {
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        const result = await firebase.auth().signInWithPopup(provider);
+                        const idToken = await result.user.getIdToken();
+
+                        const apiBaseUrl = getApiBaseUrl();
+                        const checkResponse = await fetch(`${apiBaseUrl}/api/users/check-profile`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${idToken}`
+                            }
+                        });
+
+                        const checkData = await checkResponse.json();
+
+                        if (typeof _Auth !== 'undefined' && typeof _Auth.setAuth === 'function') {
+                            _Auth.setAuth(idToken, {
+                                email: result.user.email,
+                                uid: result.user.uid,
+                                displayName: result.user.displayName,
+                                photoURL: result.user.photoURL
+                            });
+                        }
+
+                        Loading.hide();
+                        isGoogleSignInInProgress = false;
+
+                        if (checkData.exists && checkData.hasUsername) {
+                            Toast.success('Welcome back!');
+                            setTimeout(() => {
+                                if (typeof _PageTransition !== 'undefined' && typeof _PageTransition.navigateTo === 'function') {
+                                    _PageTransition.navigateTo('/mood.html');
+                                } else {
+                                    window.location.href = '/mood.html';
+                                }
+                            }, 1000);
+                        } else {
+                            Toast.success('Please complete your profile setup');
+                            setTimeout(() => {
+                                if (typeof _PageTransition !== 'undefined' && typeof _PageTransition.navigateTo === 'function') {
+                                    _PageTransition.navigateTo('/username.html');
+                                } else {
+                                    window.location.href = '/username.html';
+                                }
+                            }, 1000);
+                        }
+                    } catch (error) {
+                        Loading.hide();
+                        isGoogleSignInInProgress = false;
+                        console.error('Google sign in error:', error);
+                        const errorMessage = getFirebaseErrorMessage(error.code);
+                        Toast.error(errorMessage);
+                    }
+                });
+            }
+
+            // Guest Sign In
+            const guestBtn = document.getElementById('guestSignIn');
+            if (guestBtn) {
+                guestBtn.addEventListener('click', async () => {
+                    isGuestSignInInProgress = true;
+                    Loading.show('Signing you in as a guest...');
+
+                    try {
+                        let user = firebase.auth().currentUser;
+                        if (!user) {
+                            const credential = await firebase.auth().signInAnonymously();
+                            user = credential?.user || null;
+                        }
+
+                        if (!user) throw new Error('Guest sign-in failed');
+
+                        Loading.show('Creating your guest profile...');
+                        const token = await user.getIdToken();
+
+                        const apiBaseUrl = getApiBaseUrl();
+                        const res = await fetch(`${apiBaseUrl}/api/users/ensure-guest`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({})
+                        });
+
+                        const text = await res.text();
+                        if (!res.ok) throw new Error(text || `HTTP ${res.status}`);
+
+                        let payload = null;
+                        try { payload = JSON.parse(text); } catch { }
+
+                        try {
+                            localStorage.setItem('guest_uid', user.uid);
+                            if (payload?.user?.username) localStorage.setItem('guest_username', payload.user.username);
+                            localStorage.setItem('guest_timestamp', String(Date.now()));
+                            localStorage.removeItem('currentRoom');
+                        } catch { }
+
+                        if (typeof _Auth !== 'undefined' && typeof _Auth.setAuth === 'function') {
+                            _Auth.setAuth(token, { uid: user.uid, isGuest: true });
+                        }
+
+                        Loading.hide();
+                        Toast.success('Welcome!');
+
+                        setTimeout(() => {
+                            if (typeof _PageTransition !== 'undefined' && typeof _PageTransition.navigateTo === 'function') {
+                                _PageTransition.navigateTo('/mood.html');
+                            } else {
+                                window.location.href = '/mood.html';
+                            }
+                        }, 700);
+                    } catch (error) {
+                        Loading.hide();
+                        console.error('Guest sign-in error:', error);
+                        const msg = (error && error.message) ? String(error.message) : 'Failed to continue as guest';
+                        Toast.error(msg);
+                        try { await firebase.auth().signOut(); } catch { }
+                    } finally {
+                        isGuestSignInInProgress = false;
+                    }
+                });
+            }
+        })();
+    </script>
+
+    <script>
+        (async function() {
+            const btn = document.getElementById('contactSupportBtn');
+            const modal = document.getElementById('contactSupportModal');
+            const copyBtn = document.getElementById('contactSupportCopyBtn');
+            const emailEl = document.getElementById('contactSupportEmail');
+            const hint = document.getElementById('contactSupportCopyHint');
+            if (!btn || !modal || !copyBtn || !emailEl) return;
+
+            const open = () => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            };
+            const close = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                if (hint) hint.classList.add('hidden');
+            };
+
+            btn.addEventListener('click', open);
+            modal.addEventListener('click', (e) => {
+                const t = e.target;
+                if (t && t.closest && t.closest('[data-close="1"]')) close();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') close();
+            });
+
+            copyBtn.addEventListener('click', async () => {
+                const text = emailEl.textContent || 'contact@vibegra.com';
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
+                    if (hint) {
+                        hint.classList.remove('hidden');
+                        setTimeout(() => hint.classList.add('hidden'), 1200);
+                    }
+                } catch { }
+            });
+        })();
+    </script>
+</body>
+</html>

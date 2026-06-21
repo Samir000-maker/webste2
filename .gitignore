@@ -1,0 +1,17 @@
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+node_modules/
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+*.service-account.json
+# Local secrets — keep local only
+local-secrets.js
+call_original.html
+chat.html.bak
